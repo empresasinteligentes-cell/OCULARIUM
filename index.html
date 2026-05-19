@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+<base target="_top">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CRM Ocularium</title>
@@ -654,77 +655,52 @@
 </div>
 
 <script>
-
-// ============== API REMOTA (substitui google.script.run) ==============
-// URL do backend Apps Script — TROQUE pela sua URL após nova implantação
+// ============== CONFIG DA API ==============
+// URL do app implantado no Apps Script (.../exec).
+// Substitua se mudar de implantação.
 const API_URL = 'https://script.google.com/macros/s/AKfycbwgFdX8yep42V_8au6EiSAhCBHPgcApGQ18QOPgGSHF5fIdVkk8bi5114bHkM2qK38JHQ/exec';
 
-const _PARAM_MAP = {'login': ['user', 'pass'], 'listarOportunidades': ['usuario'], 'criarOportunidade': ['usuario', 'payload'], 'iniciarAtendimento': ['usuario', 'idOportunidade'], 'finalizarAtendimento': ['usuario', 'payload'], 'historicoAtendimentos': ['usuario', 'idOportunidade'], 'listarVendedores': ['usuario'], 'painelTempos': ['usuario', 'filtros'], 'dashboardExecutivo': ['usuario', 'filtros']};
-
-// JSONP universal — funciona em qualquer domínio, sem CORS
-let _jsonpCounter = 0;
-function _jsonpRequest(url, params) {
+/**
+ * Chama o backend via JSONP — única forma estável de o GitHub Pages
+ * conversar com o Apps Script sem ser bloqueado por CORS.
+ *
+ * Uso:  apiCall('login', { user:'ana', pass:'123' }).then(r => ...)
+ *
+ * Retorna Promise. Timeout padrão: 15s.
+ */
+let __jsonpSeq = 0;
+function apiCall(action, data, timeoutMs) {
+  timeoutMs = timeoutMs || 15000;
   return new Promise((resolve, reject) => {
-    const cbName = '_cbCRM_' + (++_jsonpCounter) + '_' + Date.now();
-    const qs = Object.entries(params).map(([k,v]) => k+'='+encodeURIComponent(v)).join('&');
-    const full = url + (url.indexOf('?')>=0 ? '&' : '?') + qs + '&callback=' + cbName;
-    const script = document.createElement('script');
+    const cbName = '__cb_' + (++__jsonpSeq) + '_' + Date.now();
+    const tag = document.createElement('script');
     let done = false;
-    window[cbName] = (data) => {
-      done = true;
-      delete window[cbName];
-      script.remove();
-      resolve(data);
+    const cleanup = () => {
+      try { delete window[cbName]; } catch(e) { window[cbName] = undefined; }
+      if (tag.parentNode) tag.parentNode.removeChild(tag);
     };
-    script.onerror = () => {
-      if (done) return;
-      delete window[cbName];
-      script.remove();
-      reject(new Error('Falha de rede ao chamar a API'));
+    const timer = setTimeout(() => {
+      if (done) return; done = true; cleanup();
+      reject(new Error('Tempo de resposta esgotado (15s).'));
+    }, timeoutMs);
+
+    window[cbName] = (resp) => {
+      if (done) return; done = true; clearTimeout(timer); cleanup();
+      resolve(resp);
     };
-    setTimeout(() => {
-      if (done) return;
-      delete window[cbName];
-      try { script.remove(); } catch(e){}
-      reject(new Error('Timeout (20s) ao chamar a API'));
-    }, 20000);
-    script.src = full;
-    document.body.appendChild(script);
+    tag.onerror = () => {
+      if (done) return; done = true; clearTimeout(timer); cleanup();
+      reject(new Error('Falha ao conectar à API.'));
+    };
+
+    const payload = encodeURIComponent(JSON.stringify(data || {}));
+    tag.src = API_URL +
+      '?action=' + encodeURIComponent(action) +
+      '&data=' + payload +
+      '&callback=' + cbName;
+    document.body.appendChild(tag);
   });
 }
-
-// Shim que imita google.script.run
-function _apiCallChain() {
-  let onSuccess = null, onFailure = null;
-  const proxy = new Proxy({}, {
-    get(_, prop) {
-      if (prop === 'withSuccessHandler') return fn => { onSuccess = fn; return proxy; };
-      if (prop === 'withFailureHandler') return fn => { onFailure = fn; return proxy; };
-      // É uma chamada de ação
-      return (...args) => {
-        const paramNames = _PARAM_MAP[prop];
-        if (!paramNames) {
-          if (onFailure) onFailure(new Error('Função desconhecida: ' + prop));
-          return;
-        }
-        const data = {};
-        paramNames.forEach((nome, i) => data[nome] = args[i]);
-        const payload = { action: prop, data: JSON.stringify(data) };
-        _jsonpRequest(API_URL, payload)
-          .then(r => { if (onSuccess) onSuccess(r); })
-          .catch(err => { if (onFailure) onFailure(err); else console.error(err); });
-      };
-    }
-  });
-  return proxy;
-}
-
-// Cria objeto 'google.script.run' fake para reusar código existente
-window.google = window.google || {};
-window.google.script = window.google.script || {};
-Object.defineProperty(window.google.script, 'run', {
-  get: () => _apiCallChain()
-});
 
 // ============== ESTADO GLOBAL ==============
 let estado = {
@@ -791,8 +767,9 @@ function fazerLogin(){
     setErr('loginErr','Tempo de resposta esgotado. Verifique se você rodou setupEstruturaPlanilha() e se a propriedade SPREADSHEET_ID está configurada.');
   }, 15000);
 
-  google.script.run
-    .withSuccessHandler(r => {
+  // O apiCall já tem timeout próprio; o setTimeout local fica como fallback visual
+  apiCall('login', { user: login, pass: senha })
+    .then(r => {
       clearTimeout(timeoutId);
       el('btnLogin').disabled = false;
       el('btnLogin').textContent = 'Entrar';
@@ -800,14 +777,13 @@ function fazerLogin(){
       estado.usuario = r.usuario;
       iniciarApp();
     })
-    .withFailureHandler(err => {
+    .catch(err => {
       clearTimeout(timeoutId);
       el('btnLogin').disabled = false;
       el('btnLogin').textContent = 'Entrar';
       setErr('loginErr','Falha: ' + (err && err.message ? err.message : 'erro desconhecido') + ' — abra o console (F12) para detalhes.');
       console.error('Erro no login:', err);
-    })
-    .login(login, senha);
+    });
 }
 
 el('btnLogout').addEventListener('click', () => {
@@ -855,8 +831,8 @@ el('filtroPilar').addEventListener('change', e => { estado.filtro.pilar = e.targ
 
 function carregarOportunidades(){
   setHTML('tblBody','<tr><td colspan="10"><div class="loader"></div></td></tr>');
-  google.script.run
-    .withSuccessHandler(r => {
+  apiCall('listarOportunidades', { usuario: estado.usuario })
+    .then(r => {
       if (!r.ok) { setHTML('tblBody','<tr><td colspan="10" class="empty">'+ (r.erro||'Erro') +'</td></tr>'); return; }
       estado.oportunidades = r.oportunidades || [];
       estado.listas = r.listas;
@@ -865,10 +841,9 @@ function carregarOportunidades(){
       renderStats();
       renderTabela();
     })
-    .withFailureHandler(err => {
+    .catch(err => {
       setHTML('tblBody','<tr><td colspan="10" class="empty">Falha: '+err.message+'</td></tr>');
-    })
-    .listarOportunidades(estado.usuario);
+    });
 }
 
 function popularFiltros(){
@@ -1003,10 +978,9 @@ function abrirModal(op){
 
   // histórico
   setHTML('histList','<div class="loader"></div>');
-  google.script.run
-    .withSuccessHandler(r => renderHistorico(r.historico || []))
-    .withFailureHandler(()=> setHTML('histList','<div class="empty">Sem histórico.</div>'))
-    .historicoAtendimentos(estado.usuario, op.ID_Oportunidade);
+  apiCall('historicoAtendimentos', { usuario: estado.usuario, idOportunidade: op.ID_Oportunidade })
+    .then(r => renderHistorico((r && r.historico) || []))
+    .catch(() => setHTML('histList','<div class="empty">Sem histórico.</div>'));
 
   show('modal', true);
 }
@@ -1134,14 +1108,16 @@ function abrirModalNova(){
   } else {
     el('boxVendedor').style.display = '';
     el('novaVendedor').innerHTML = '<option value="">— selecionar —</option><option>Carregando...</option>';
-    google.script.run
-      .withSuccessHandler(r => {
+    apiCall('listarVendedores', { usuario: estado.usuario })
+      .then(r => {
         if (r && r.ok) {
           el('novaVendedor').innerHTML = '<option value="">— selecionar —</option>' +
             (r.vendedores||[]).map(v => '<option value="'+escapeHtml(v.nome)+'">'+escapeHtml(v.nome) + (v.loja?' · '+escapeHtml(v.loja):'') +'</option>').join('');
         }
       })
-      .listarVendedores(estado.usuario);
+      .catch(() => {
+        el('novaVendedor').innerHTML = '<option value="">— selecionar —</option>';
+      });
   }
 
   show('modalNova', true);
@@ -1201,37 +1177,34 @@ function salvarNovaOportunidade(){
 
   el('btnSalvarNova').disabled = true;
   el('btnSalvarNova').textContent = '... salvando';
-  google.script.run
-    .withSuccessHandler(r => {
+  apiCall('criarOportunidade', { usuario: estado.usuario, payload: payload })
+    .then(r => {
       el('btnSalvarNova').disabled = false;
       el('btnSalvarNova').textContent = '✓ Criar oportunidade';
       if (!r.ok) return setErr('novaErr', r.erro || 'Erro ao criar.');
       show('modalNova', false);
-      // recarrega lista e, se solicitado, abre o atendimento direto
       const abrirAteh = payload.iniciarAgora;
       const novoId = r.idOportunidade;
-      google.script.run
-        .withSuccessHandler(r2 => {
-          if (!r2.ok) return;
-          estado.oportunidades = r2.oportunidades || [];
-          estado.listas = r2.listas;
-          estado.config = r2.config || estado.config;
-          popularFiltros();
-          renderStats();
-          renderTabela();
-          if (abrirAteh) {
-            const op = estado.oportunidades.find(o => o.ID_Oportunidade === novoId);
-            if (op) abrirModal(op);
-          }
-        })
-        .listarOportunidades(estado.usuario);
+      // recarrega lista e, se solicitado, abre o atendimento direto
+      return apiCall('listarOportunidades', { usuario: estado.usuario }).then(r2 => {
+        if (!r2.ok) return;
+        estado.oportunidades = r2.oportunidades || [];
+        estado.listas = r2.listas;
+        estado.config = r2.config || estado.config;
+        popularFiltros();
+        renderStats();
+        renderTabela();
+        if (abrirAteh) {
+          const op = estado.oportunidades.find(o => o.ID_Oportunidade === novoId);
+          if (op) abrirModal(op);
+        }
+      });
     })
-    .withFailureHandler(err => {
+    .catch(err => {
       el('btnSalvarNova').disabled = false;
       el('btnSalvarNova').textContent = '✓ Criar oportunidade';
       setErr('novaErr','Falha: ' + err.message);
-    })
-    .criarOportunidade(estado.usuario, payload);
+    });
 }
 
 // ============== TIMER ==============
@@ -1256,15 +1229,14 @@ function iniciarAtendimento(){
   setErr('modalErr','');
   el('btnIniciar').disabled = true;
   el('btnIniciar').textContent = '... iniciando';
-  google.script.run
-    .withSuccessHandler(r => {
+  apiCall('iniciarAtendimento', { usuario: estado.usuario, idOportunidade: estado.modal.op.ID_Oportunidade })
+    .then(r => {
       if (!r.ok) { setErr('modalErr', r.erro || 'Erro ao iniciar.'); el('btnIniciar').disabled=false; el('btnIniciar').textContent='▶ Iniciar'; return; }
       estado.modal.inicioMs = Date.now();
       el('btnIniciar').textContent = '● Em atendimento';
       iniciarTimerVisual();
     })
-    .withFailureHandler(err => { setErr('modalErr','Falha: '+err.message); el('btnIniciar').disabled=false; el('btnIniciar').textContent='▶ Iniciar'; })
-    .iniciarAtendimento(estado.usuario, estado.modal.op.ID_Oportunidade);
+    .catch(err => { setErr('modalErr','Falha: '+err.message); el('btnIniciar').disabled=false; el('btnIniciar').textContent='▶ Iniciar'; });
 }
 
 function finalizarAtendimento(){
@@ -1286,20 +1258,19 @@ function finalizarAtendimento(){
   };
   el('btnFinalizar').disabled = true;
   el('btnFinalizar').textContent = '... salvando';
-  google.script.run
-    .withSuccessHandler(r => {
+  apiCall('finalizarAtendimento', { usuario: estado.usuario, payload: payload })
+    .then(r => {
       el('btnFinalizar').disabled = false;
       el('btnFinalizar').textContent = '✓ Finalizar atendimento';
       if (!r.ok) return setErr('modalErr', r.erro || 'Erro ao salvar.');
       fecharModal();
       carregarOportunidades();
     })
-    .withFailureHandler(err => {
+    .catch(err => {
       el('btnFinalizar').disabled = false;
       el('btnFinalizar').textContent = '✓ Finalizar atendimento';
       setErr('modalErr','Falha: '+err.message);
-    })
-    .finalizarAtendimento(estado.usuario, payload);
+    });
 }
 
 // ============== PAINEL DE TEMPOS (gerente) ==============
@@ -1307,10 +1278,9 @@ el('btnRefreshTempos').addEventListener('click', carregarTempos);
 function carregarTempos(){
   setHTML('tblTempos','<tr><td colspan="8"><div class="loader"></div></td></tr>');
   setHTML('resumoTempos','');
-  google.script.run
-    .withSuccessHandler(r => {
+  apiCall('painelTempos', { usuario: estado.usuario, filtros: { vendedor: el('filtroVendedor').value.trim() } })
+    .then(r => {
       if (!r.ok) { setHTML('tblTempos','<tr><td colspan="8" class="empty">'+(r.erro||'Erro')+'</td></tr>'); return; }
-      // resumo
       setHTML('resumoTempos', (r.resumoVendedores||[]).map(v =>
         '<div class="stat"><div class="lbl">'+escapeHtml(v.vendedor)+'</div>'+
           '<div class="val">'+v.qtd+'</div>'+
@@ -1322,7 +1292,6 @@ function carregarTempos(){
           '</div>'+
         '</div>'
       ).join(''));
-      // tabela
       const lista = r.atendimentos || [];
       if (!lista.length) { setHTML('tblTempos','<tr><td colspan="8" class="empty">Sem atendimentos registrados.</td></tr>'); return; }
       setHTML('tblTempos', lista.map(a =>
@@ -1338,8 +1307,7 @@ function carregarTempos(){
         '</tr>'
       ).join(''));
     })
-    .withFailureHandler(err => setHTML('tblTempos','<tr><td colspan="8" class="empty">Falha: '+err.message+'</td></tr>'))
-    .painelTempos(estado.usuario, { vendedor: el('filtroVendedor').value.trim() });
+    .catch(err => setHTML('tblTempos','<tr><td colspan="8" class="empty">Falha: '+err.message+'</td></tr>'));
 }
 el('filtroVendedor').addEventListener('input', () => {
   // debounce simples
@@ -1380,15 +1348,14 @@ function carregarDashboard(){
     diasRecentes: el('dashFiltroPeriodo').value || ''
   };
 
-  google.script.run
-    .withSuccessHandler(r => {
+  apiCall('dashboardExecutivo', { usuario: estado.usuario, filtros: filtros })
+    .then(r => {
       if (!r.ok) { setHTML('dashKpis', '<div class="alert">'+(r.erro||'Erro')+'</div>'); return; }
       renderDashboard(r);
     })
-    .withFailureHandler(err => {
+    .catch(err => {
       setHTML('dashKpis', '<div class="alert">Falha: '+err.message+'</div>');
-    })
-    .dashboardExecutivo(estado.usuario, filtros);
+    });
 }
 
 function renderDashboard(r){
