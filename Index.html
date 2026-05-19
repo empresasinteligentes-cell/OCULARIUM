@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<base target="_top">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CRM Ocularium</title>
@@ -655,6 +654,78 @@
 </div>
 
 <script>
+
+// ============== API REMOTA (substitui google.script.run) ==============
+// URL do backend Apps Script — TROQUE pela sua URL após nova implantação
+const API_URL = 'https://script.google.com/macros/s/AKfycbwgFdX8yep42V_8au6EiSAhCBHPgcApGQ18QOPgGSHF5fIdVkk8bi5114bHkM2qK38JHQ/exec';
+
+const _PARAM_MAP = {'login': ['user', 'pass'], 'listarOportunidades': ['usuario'], 'criarOportunidade': ['usuario', 'payload'], 'iniciarAtendimento': ['usuario', 'idOportunidade'], 'finalizarAtendimento': ['usuario', 'payload'], 'historicoAtendimentos': ['usuario', 'idOportunidade'], 'listarVendedores': ['usuario'], 'painelTempos': ['usuario', 'filtros'], 'dashboardExecutivo': ['usuario', 'filtros']};
+
+// JSONP universal — funciona em qualquer domínio, sem CORS
+let _jsonpCounter = 0;
+function _jsonpRequest(url, params) {
+  return new Promise((resolve, reject) => {
+    const cbName = '_cbCRM_' + (++_jsonpCounter) + '_' + Date.now();
+    const qs = Object.entries(params).map(([k,v]) => k+'='+encodeURIComponent(v)).join('&');
+    const full = url + (url.indexOf('?')>=0 ? '&' : '?') + qs + '&callback=' + cbName;
+    const script = document.createElement('script');
+    let done = false;
+    window[cbName] = (data) => {
+      done = true;
+      delete window[cbName];
+      script.remove();
+      resolve(data);
+    };
+    script.onerror = () => {
+      if (done) return;
+      delete window[cbName];
+      script.remove();
+      reject(new Error('Falha de rede ao chamar a API'));
+    };
+    setTimeout(() => {
+      if (done) return;
+      delete window[cbName];
+      try { script.remove(); } catch(e){}
+      reject(new Error('Timeout (20s) ao chamar a API'));
+    }, 20000);
+    script.src = full;
+    document.body.appendChild(script);
+  });
+}
+
+// Shim que imita google.script.run
+function _apiCallChain() {
+  let onSuccess = null, onFailure = null;
+  const proxy = new Proxy({}, {
+    get(_, prop) {
+      if (prop === 'withSuccessHandler') return fn => { onSuccess = fn; return proxy; };
+      if (prop === 'withFailureHandler') return fn => { onFailure = fn; return proxy; };
+      // É uma chamada de ação
+      return (...args) => {
+        const paramNames = _PARAM_MAP[prop];
+        if (!paramNames) {
+          if (onFailure) onFailure(new Error('Função desconhecida: ' + prop));
+          return;
+        }
+        const data = {};
+        paramNames.forEach((nome, i) => data[nome] = args[i]);
+        const payload = { action: prop, data: JSON.stringify(data) };
+        _jsonpRequest(API_URL, payload)
+          .then(r => { if (onSuccess) onSuccess(r); })
+          .catch(err => { if (onFailure) onFailure(err); else console.error(err); });
+      };
+    }
+  });
+  return proxy;
+}
+
+// Cria objeto 'google.script.run' fake para reusar código existente
+window.google = window.google || {};
+window.google.script = window.google.script || {};
+Object.defineProperty(window.google.script, 'run', {
+  get: () => _apiCallChain()
+});
+
 // ============== ESTADO GLOBAL ==============
 let estado = {
   usuario: null,
@@ -712,18 +783,29 @@ function fazerLogin(){
   if (!login || !senha) return setErr('loginErr','Informe login e senha.');
   el('btnLogin').disabled = true;
   el('btnLogin').textContent = 'Entrando...';
+
+  // Timeout de segurança: se servidor não responder em 15s, destrava o botão
+  const timeoutId = setTimeout(() => {
+    el('btnLogin').disabled = false;
+    el('btnLogin').textContent = 'Entrar';
+    setErr('loginErr','Tempo de resposta esgotado. Verifique se você rodou setupEstruturaPlanilha() e se a propriedade SPREADSHEET_ID está configurada.');
+  }, 15000);
+
   google.script.run
     .withSuccessHandler(r => {
+      clearTimeout(timeoutId);
       el('btnLogin').disabled = false;
       el('btnLogin').textContent = 'Entrar';
-      if (!r.ok) return setErr('loginErr', r.erro || 'Erro no login.');
+      if (!r || !r.ok) return setErr('loginErr', (r && r.erro) || 'Erro no login.');
       estado.usuario = r.usuario;
       iniciarApp();
     })
     .withFailureHandler(err => {
+      clearTimeout(timeoutId);
       el('btnLogin').disabled = false;
       el('btnLogin').textContent = 'Entrar';
-      setErr('loginErr','Falha de comunicação: ' + err.message);
+      setErr('loginErr','Falha: ' + (err && err.message ? err.message : 'erro desconhecido') + ' — abra o console (F12) para detalhes.');
+      console.error('Erro no login:', err);
     })
     .login(login, senha);
 }
