@@ -1,687 +1,294 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-<base target="_top">
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CRM Ocularium</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-  :root {
-    --bg: #0f172a;
-    --bg-2: #111827;
-    --card: #1e293b;
-    --card-2: #273449;
-    --border: #334155;
-    --text: #f1f5f9;
-    --muted: #94a3b8;
-    --accent: #38bdf8;
-    --accent-2: #0ea5e9;
-    --ok: #22c55e;
-    --warn: #facc15;
-    --alert: #ef4444;
-    --shadow: 0 4px 20px rgba(0,0,0,0.35);
-  }
-  * { box-sizing: border-box; }
-  html, body { height: 100%; }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    font-size: 14px;
-  }
-  /* ====== LOGIN ====== */
-  .login-wrap {
-    min-height: 100vh; display: flex; align-items: center; justify-content: center;
-    padding: 24px;
-  }
-  .login-card {
-    width: 100%; max-width: 380px; background: var(--card);
-    border: 1px solid var(--border); border-radius: 14px; padding: 28px;
-    box-shadow: var(--shadow);
-  }
-  .brand { text-align: center; margin-bottom: 22px; }
-  .brand .logo {
-    width: 56px; height: 56px; margin: 0 auto 8px; border-radius: 14px;
-    background: linear-gradient(135deg, #0ea5e9, #6366f1);
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 700; font-size: 22px; color: white;
-  }
-  .brand h1 { font-size: 18px; margin: 4px 0 2px; }
-  .brand p { margin: 0; font-size: 12px; color: var(--muted); }
+:root{
+  --bg:#0b1220; --panel:#0f172a; --panel2:#111c33; --border:#1e293b;
+  --text:#e2e8f0; --muted:#94a3b8;
+  --brand:#0ea5e9; --brand2:#0284c7;
+  --ok:#22c55e; --warn:#f59e0b; --alert:#ef4444;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
-  label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
-  input, select, textarea {
-    width: 100%; background: var(--bg-2); color: var(--text);
-    border: 1px solid var(--border); border-radius: 8px;
-    padding: 10px 12px; font-size: 14px; outline: none;
-  }
-  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
-  .field { margin-bottom: 12px; }
-  .btn {
-    background: var(--accent); color: #082f49; border: none; padding: 10px 14px;
-    border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;
-  }
-  .btn:hover { background: var(--accent-2); color: white; }
-  .btn.block { width: 100%; }
-  .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
-  .btn.ghost:hover { background: var(--card-2); }
-  .btn.danger { background: var(--alert); color: white; }
-  .btn.success { background: var(--ok); color: #052e16; }
-  .btn.small { padding: 6px 10px; font-size: 12px; }
-  .alert {
-    background: #7f1d1d; color: #fee2e2; padding: 8px 10px;
-    border-radius: 6px; font-size: 12px; margin-bottom: 10px;
-  }
-  .ok-msg {
-    background: #064e3b; color: #d1fae5; padding: 8px 10px;
-    border-radius: 6px; font-size: 12px; margin-bottom: 10px;
-  }
+.topbar{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 22px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50}
+.brand{font-weight:700;color:var(--brand);font-size:18px}
+.brand .sub{color:var(--muted);font-weight:400;font-size:12px;margin-left:8px}
+.userbox{display:flex;gap:10px;align-items:center;font-size:13px;color:var(--muted)}
+.userbox b{color:var(--text)}
+.btn{background:var(--brand);color:white;border:0;padding:8px 14px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:500}
+.btn:hover{background:var(--brand2)}
+.btn:disabled{background:#475569;cursor:not-allowed}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-ok{background:var(--ok)}
+.btn-warn{background:var(--warn);color:#1a1a1a}
 
-  /* ====== APP ====== */
-  .topbar {
-    display: flex; align-items: center; justify-content: space-between;
-    background: var(--card); padding: 10px 18px; border-bottom: 1px solid var(--border);
-    position: sticky; top: 0; z-index: 5;
-  }
-  .topbar .brand-small { display: flex; align-items: center; gap: 10px; }
-  .topbar .brand-small .logo { width: 32px; height: 32px; border-radius: 8px;
-    background: linear-gradient(135deg, #0ea5e9, #6366f1);
-    display:flex; align-items:center; justify-content:center; font-weight:700; }
-  .topbar .user { font-size: 13px; color: var(--muted); }
-  .topbar .user b { color: var(--text); }
+.container{max-width:1400px;margin:0 auto;padding:20px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:18px}
+.card h2{margin:0 0 14px;font-size:16px;color:var(--text)}
 
-  .tabs { display: flex; gap: 4px; padding: 0 18px; background: var(--bg-2);
-    border-bottom: 1px solid var(--border); }
-  .tab { padding: 10px 14px; cursor: pointer; color: var(--muted); font-size: 13px;
-    border-bottom: 2px solid transparent; }
-  .tab.active { color: var(--text); border-color: var(--accent); }
+.tabs{display:flex;gap:4px;margin-bottom:18px;border-bottom:1px solid var(--border)}
+.tab{padding:10px 18px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;font-size:14px}
+.tab.active{color:var(--brand);border-bottom-color:var(--brand)}
 
-  .content { padding: 18px; }
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.stat{background:var(--panel2);border:1px solid var(--border);padding:14px;border-radius:8px}
+.stat .lbl{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+.stat .val{font-size:22px;font-weight:700;margin-top:6px}
 
-  .toolbar {
-    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
-    margin-bottom: 12px;
-  }
-  .toolbar input, .toolbar select {
-    width: auto; min-width: 180px; padding: 8px 10px; font-size: 13px;
-  }
-  .toolbar .spacer { flex: 1; }
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.filters input,.filters select{background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;min-width:160px}
 
-  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 10px; margin-bottom: 14px; }
-  .stat { background: var(--card); padding: 12px; border-radius: 10px; border: 1px solid var(--border); }
-  .stat .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
-  .stat .val { font-size: 22px; font-weight: 700; margin-top: 2px; }
-  .stat .val.ok { color: var(--ok); }
-  .stat .val.warn { color: var(--warn); }
-  .stat .val.alert { color: var(--alert); }
+table{width:100%;border-collapse:collapse}
+th,td{padding:10px 12px;text-align:left;font-size:13px;border-bottom:1px solid var(--border)}
+th{background:var(--panel2);color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+tr:hover td{background:#0e1a30}
+td .row-btn{background:transparent;border:1px solid var(--brand);color:var(--brand);padding:4px 10px;border-radius:5px;cursor:pointer;font-size:12px}
+td .row-btn:hover{background:var(--brand);color:white}
 
-  /* ====== TABELA ====== */
-  .table-wrap {
-    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
-    overflow: auto; max-height: calc(100vh - 280px);
-  }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  thead th {
-    position: sticky; top: 0; background: var(--card-2); color: var(--muted);
-    text-align: left; padding: 10px; font-weight: 600; font-size: 12px;
-    border-bottom: 1px solid var(--border); white-space: nowrap;
-  }
-  tbody td { padding: 10px; border-bottom: 1px solid #1f2937; vertical-align: middle; }
-  tbody tr { cursor: pointer; transition: background .12s; }
-  tbody tr:hover { background: #243046; }
-  tbody tr.active-row { background: #1e3a5f; }
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.dot-verde{background:var(--ok)}.dot-amarelo{background:var(--warn)}.dot-vermelho{background:var(--alert)}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;background:var(--panel2);border:1px solid var(--border)}
 
-  .pill {
-    display: inline-block; padding: 2px 8px; border-radius: 999px;
-    font-size: 11px; font-weight: 600;
-  }
-  .pill.alta { background: #7f1d1d; color: #fecaca; }
-  .pill.media { background: #78350f; color: #fde68a; }
-  .pill.baixa { background: #1e3a8a; color: #bfdbfe; }
-  .pill.status { background: #1f2937; color: var(--muted); }
+.empty{color:var(--muted);text-align:center;padding:30px;font-size:14px}
+.alert{background:#3f1d1d;color:#fca5a5;padding:10px;border-radius:6px;font-size:13px;margin-bottom:10px}
+.loader{border:3px solid var(--border);border-top:3px solid var(--brand);border-radius:50%;width:22px;height:22px;animation:spin 1s linear infinite;margin:20px auto;display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-  .dot {
-    display: inline-block; width: 12px; height: 12px; border-radius: 50%;
-    margin-right: 6px; vertical-align: middle;
-  }
-  .dot.verde { background: var(--ok); box-shadow: 0 0 6px var(--ok); }
-  .dot.amarelo { background: var(--warn); box-shadow: 0 0 6px var(--warn); }
-  .dot.vermelho { background: var(--alert); box-shadow: 0 0 8px var(--alert); animation: pulse 1.2s infinite; }
-  .dot.cinza { background: #475569; }
-  @keyframes pulse {
-    0%,100% { opacity: 1; }
-    50% { opacity: .55; }
-  }
+/* Login */
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.login-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:40px;width:100%;max-width:380px}
+.login-card h1{color:var(--brand);margin:0 0 6px;font-size:22px}
+.login-card p{color:var(--muted);font-size:13px;margin:0 0 24px}
+.login-card label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;margin-top:14px;text-transform:uppercase;letter-spacing:.5px}
+.login-card input{width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:6px;font-size:14px}
+.login-card .btn{width:100%;margin-top:20px;padding:12px}
 
-  /* ====== MODAL ====== */
-  .modal-backdrop {
-    position: fixed; inset: 0; background: rgba(0,0,0,.55);
-    display: flex; align-items: center; justify-content: center;
-    padding: 20px; z-index: 50;
-  }
-  .modal {
-    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
-    width: 100%; max-width: 720px; max-height: 92vh; overflow: auto;
-    box-shadow: var(--shadow);
-  }
-  .modal header {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 14px 18px; border-bottom: 1px solid var(--border);
-    position: sticky; top: 0; background: var(--card); z-index: 1;
-  }
-  .modal h2 { margin: 0; font-size: 16px; }
-  .modal .body { padding: 16px 18px; }
-  .modal footer {
-    padding: 12px 18px; border-top: 1px solid var(--border);
-    display: flex; gap: 8px; justify-content: flex-end;
-    position: sticky; bottom: 0; background: var(--card);
-  }
+/* Modal */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;overflow-y:auto}
+.modal-backdrop.show{display:flex}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:24px;width:100%;max-width:720px;max-height:90vh;overflow-y:auto;margin:auto}
+.modal h2{margin:0 0 16px;color:var(--brand)}
+.modal .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.modal label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.modal input, .modal select, .modal textarea{width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:9px 11px;border-radius:6px;font-size:13px}
+.modal textarea{resize:vertical;min-height:60px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:6px 12px;background:var(--panel2);border:1px solid var(--border);border-radius:18px;cursor:pointer;font-size:12px;color:var(--muted);transition:.15s}
+.chip:hover{border-color:var(--brand)}
+.chip.active{background:var(--brand);color:white;border-color:var(--brand)}
+.timer{font-size:28px;font-weight:700;text-align:center;padding:14px;border-radius:8px;background:var(--panel2);margin-bottom:14px}
+.timer.verde{color:var(--ok)}
+.timer.amarelo{color:var(--warn)}
+.timer.vermelho{color:var(--alert)}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap}
 
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
-
-  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-  .chip {
-    padding: 6px 10px; border: 1px solid var(--border); border-radius: 999px;
-    cursor: pointer; user-select: none; font-size: 12px; background: var(--bg-2);
-    color: var(--text);
-  }
-  .chip.active { background: var(--accent); color: #082f49; border-color: var(--accent); }
-  .chip.active.estilo { background: #f472b6; color: #4a044e; border-color: #f472b6; }
-  .chip.active.tecnico { background: #a78bfa; color: #1e1b4b; border-color: #a78bfa; }
-  .chip.active.confianca { background: #34d399; color: #022c22; border-color: #34d399; }
-
-  .timer-box {
-    background: var(--bg-2); border: 1px solid var(--border); border-radius: 10px;
-    padding: 10px 14px; display: inline-flex; align-items: center; gap: 10px;
-    font-variant-numeric: tabular-nums;
-  }
-  .timer-box .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; }
-  .timer-box .val { font-size: 18px; font-weight: 700; }
-  .timer-box .val.amarelo { color: var(--warn); }
-  .timer-box .val.vermelho { color: var(--alert); }
-
-  details { background: var(--bg-2); border: 1px solid var(--border); border-radius: 8px;
-    padding: 8px 12px; margin-top: 10px; }
-  details summary { cursor: pointer; color: var(--muted); font-size: 13px; }
-  .hist-item {
-    background: var(--card-2); border: 1px solid var(--border); border-radius: 8px;
-    padding: 10px; margin-top: 8px; font-size: 12px;
-  }
-  .hist-item .meta { color: var(--muted); font-size: 11px; margin-bottom: 4px; }
-
-  .empty { padding: 40px; text-align: center; color: var(--muted); }
-  .loader {
-    border: 3px solid var(--border); border-top: 3px solid var(--accent);
-    border-radius: 50%; width: 24px; height: 24px;
-    animation: spin 0.8s linear infinite; margin: 20px auto;
-  }
-  @keyframes spin { 100% { transform: rotate(360deg); } }
-
-  /* ====== DASHBOARD EXECUTIVO ====== */
-  .dash-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 12px;
-    margin-top: 14px;
-  }
-  .dash-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 14px;
-  }
-  .dash-title {
-    font-size: 12px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: .05em;
-    margin-bottom: 10px;
-    font-weight: 600;
-  }
-  .dash-card canvas {
-    max-height: 240px;
-  }
-  .alerta {
-    background: #78350f;
-    color: #fde68a;
-    padding: 10px 14px;
-    border-left: 3px solid var(--warn);
-    border-radius: 6px;
-    margin-bottom: 8px;
-    font-size: 13px;
-  }
-  .alerta.rede { background:#7f1d1d; color:#fee2e2; border-color: var(--alert); }
-  .alerta.sem-fechamento { background:#7f1d1d; color:#fee2e2; border-color: var(--alert); }
-  .alerta .ico { margin-right: 6px; }
-  .dash-table-tax {
-    display: inline-block; padding: 2px 8px; border-radius: 6px; font-weight:600;
-  }
-  .dash-table-tax.bom { background:#064e3b; color:#d1fae5; }
-  .dash-table-tax.medio { background:#78350f; color:#fde68a; }
-  .dash-table-tax.ruim { background:#7f1d1d; color:#fecaca; }
+.hidden{display:none !important}
 </style>
 </head>
 <body>
 
-<!-- ============ TELA DE LOGIN ============ -->
+<!-- ============ LOGIN ============ -->
 <div id="loginScreen" class="login-wrap">
   <div class="login-card">
-    <div class="brand">
-      <div class="logo">O</div>
-      <h1>CRM Ocularium</h1>
-      <p>Consultoria visual premium · v1</p>
-    </div>
-    <div id="loginErr"></div>
-    <div class="field">
-      <label>Login</label>
-      <input id="inpLogin" type="text" autocomplete="username" placeholder="ex: ana">
-    </div>
-    <div class="field">
-      <label>Senha</label>
-      <input id="inpSenha" type="password" autocomplete="current-password" placeholder="••••••">
-    </div>
-    <button class="btn block" id="btnLogin">Entrar</button>
-    <p style="font-size:11px; color: var(--muted); margin-top:14px; text-align:center;">
-      Use: <b>ana / 123</b> · <b>gerente / 123</b> · <b>admin / admin123</b>
-    </p>
+    <h1>🔭 CRM Ocularium</h1>
+    <p>Acesso para vendedores e gerentes</p>
+    <label>Login</label>
+    <input id="loginUser" placeholder="ex: kleber" autocomplete="username">
+    <label>Senha</label>
+    <input id="loginPass" type="password" autocomplete="current-password">
+    <div id="loginErr" class="alert hidden" style="margin-top:14px"></div>
+    <button class="btn" id="btnLogin">Entrar</button>
+    <div id="apiStatus" style="margin-top:14px;font-size:11px;color:var(--muted);text-align:center"></div>
   </div>
 </div>
 
 <!-- ============ APP ============ -->
-<div id="appScreen" style="display:none;">
+<div id="appScreen" class="hidden">
   <div class="topbar">
-    <div class="brand-small">
-      <div class="logo">O</div>
-      <div>
-        <div style="font-weight:600;">CRM Ocularium</div>
-        <div style="font-size:11px; color: var(--muted);" id="tagPapel">vendedor</div>
-      </div>
-    </div>
-    <div class="user">
-      Olá, <b id="userNome">—</b>
-      <button class="btn ghost small" id="btnLogout" style="margin-left:12px;">Sair</button>
+    <div class="brand">🔭 CRM Ocularium <span class="sub">consultoria visual</span></div>
+    <div class="userbox">
+      <span><b id="userNome">—</b> · <span id="userPapel">—</span></span>
+      <button class="btn btn-ghost" id="btnLogout">Sair</button>
     </div>
   </div>
 
-  <div class="tabs" id="tabs">
-    <div class="tab active" data-tab="oportunidades">Minhas oportunidades</div>
-    <div class="tab" data-tab="tempos" id="tabTempos" style="display:none;">Painel de tempos</div>
-    <div class="tab" data-tab="dashboard" id="tabDashboard" style="display:none;">📊 Dashboard executivo</div>
-  </div>
-
-  <div class="content">
-
-    <!-- ABA: Oportunidades -->
-    <div id="tabOportunidades">
-      <div class="stat-grid" id="statGrid"></div>
-
-      <div class="toolbar">
-        <input type="text" id="filtroBusca" placeholder="🔎 Buscar cliente, telefone, etapa...">
-        <select id="filtroStatus">
-          <option value="">Todos os status</option>
-        </select>
-        <select id="filtroPilar">
-          <option value="">Todos os pilares</option>
-        </select>
-        <div class="spacer"></div>
-        <button class="btn small" id="btnNovaOp">+ Nova oportunidade</button>
-        <button class="btn ghost small" id="btnRefresh">↻ Atualizar</button>
-      </div>
-
-      <div class="table-wrap">
-        <table id="tbl">
-          <thead>
-            <tr>
-              <th style="width:50px;">⏱</th>
-              <th>Cliente</th>
-              <th>Loja</th>
-              <th>Etapa</th>
-              <th>Status</th>
-              <th>Pilar</th>
-              <th>Perfil</th>
-              <th>Produto</th>
-              <th>Próxima ação</th>
-              <th>Prior.</th>
-            </tr>
-          </thead>
-          <tbody id="tblBody">
-            <tr><td colspan="10"><div class="loader"></div></td></tr>
-          </tbody>
-        </table>
-      </div>
+  <div class="container">
+    <div class="tabs">
+      <div class="tab active" data-tab="oportunidades">Oportunidades</div>
+      <div class="tab hidden" data-tab="tempos" id="tabTempos">Painel de Tempos</div>
+      <div class="tab hidden" data-tab="dashboard" id="tabDash">Dashboard</div>
     </div>
 
-    <!-- ABA: Painel de tempos (gerente) -->
-    <div id="tabTemposContent" style="display:none;">
-      <div class="toolbar">
-        <input type="text" id="filtroVendedor" placeholder="Filtrar por vendedor...">
-        <div class="spacer"></div>
-        <button class="btn ghost small" id="btnRefreshTempos">↻ Atualizar</button>
+    <!-- Aba Oportunidades -->
+    <section id="paneOportunidades">
+      <div class="grid" id="statsCards">
+        <div class="stat"><div class="lbl">Total</div><div class="val" id="kpiTotal">—</div></div>
+        <div class="stat"><div class="lbl">Em aberto</div><div class="val" id="kpiAberto">—</div></div>
+        <div class="stat"><div class="lbl">Convertidas</div><div class="val" id="kpiConv">—</div></div>
+        <div class="stat"><div class="lbl">Faturamento</div><div class="val" id="kpiFat">—</div></div>
       </div>
-      <div id="resumoTempos" class="stat-grid"></div>
-      <div class="table-wrap">
+
+      <div class="card" style="margin-top:18px">
+        <div class="filters">
+          <input id="filtroBusca" placeholder="🔍 buscar por cliente, telefone ou ID...">
+          <select id="filtroStatus"><option value="">Todos os status</option></select>
+          <select id="filtroPilar"><option value="">Todos os pilares</option></select>
+          <button class="btn" id="btnNova">+ Nova oportunidade</button>
+          <button class="btn btn-ghost" id="btnRefresh">↻ Atualizar</button>
+        </div>
         <table>
-          <thead>
-            <tr>
-              <th>⏱</th><th>Vendedor</th><th>Oportunidade</th><th>Início</th><th>Fim</th>
-              <th>Duração (min)</th><th>Etapa</th><th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="tblTempos">
-            <tr><td colspan="8" class="empty">Selecione "Atualizar" para carregar.</td></tr>
-          </tbody>
+          <thead><tr>
+            <th>Cliente</th><th>Vendedor</th><th>Loja</th>
+            <th>Pilar</th><th>Status</th><th>Etapa</th>
+            <th>Próxima ação</th><th>Valor</th><th></th>
+          </tr></thead>
+          <tbody id="tblBody"><tr><td colspan="9"><div class="loader"></div></td></tr></tbody>
         </table>
       </div>
-    </div>
+    </section>
 
-    <!-- ABA: Dashboard executivo (gerente/admin) -->
-    <div id="tabDashboardContent" style="display:none;">
-      <div class="toolbar">
-        <select id="dashFiltroLoja"><option value="">Todas as lojas</option></select>
-        <select id="dashFiltroVendedor"><option value="">Todos os vendedores</option></select>
-        <select id="dashFiltroPeriodo">
-          <option value="">Período total</option>
-          <option value="7">Últimos 7 dias</option>
-          <option value="30">Últimos 30 dias</option>
-          <option value="90">Últimos 90 dias</option>
-        </select>
-        <div class="spacer"></div>
-        <span id="dashGeradoEm" style="font-size:11px; color:var(--muted);"></span>
-        <button class="btn ghost small" id="btnRefreshDash">↻ Atualizar</button>
+    <!-- Aba Painel de Tempos -->
+    <section id="paneTempos" class="hidden">
+      <div class="card">
+        <div class="filters">
+          <input id="filtroVendedor" placeholder="filtrar por vendedor...">
+          <button class="btn btn-ghost" id="btnRefreshTempos">↻ Atualizar</button>
+        </div>
+        <div class="grid" id="resumoTempos" style="margin-bottom:14px"></div>
+        <table>
+          <thead><tr>
+            <th>SLA</th><th>Vendedor</th><th>ID</th>
+            <th>Início</th><th>Fim</th><th>Duração (min)</th>
+            <th>Etapa</th><th>Status</th>
+          </tr></thead>
+          <tbody id="tblTempos"><tr><td colspan="8" class="empty">Carregando...</td></tr></tbody>
+        </table>
       </div>
+    </section>
 
-      <!-- KPIs -->
-      <div class="stat-grid" id="dashKpis"></div>
-
-      <!-- Alertas -->
-      <div id="dashAlertas"></div>
-
-      <!-- Gráficos -->
-      <div class="dash-grid">
-        <div class="dash-card">
-          <div class="dash-title">Faturamento por loja</div>
-          <canvas id="chartLoja"></canvas>
+    <!-- Aba Dashboard -->
+    <section id="paneDashboard" class="hidden">
+      <div class="card">
+        <div class="filters">
+          <select id="dashFiltroLoja"><option value="">Todas as lojas</option></select>
+          <select id="dashFiltroVendedor"><option value="">Todos os vendedores</option></select>
+          <select id="dashFiltroPeriodo">
+            <option value="">Todo período</option>
+            <option value="7">Últimos 7 dias</option>
+            <option value="30">Últimos 30 dias</option>
+            <option value="90">Últimos 90 dias</option>
+          </select>
+          <button class="btn btn-ghost" id="btnRefreshDash">↻ Atualizar</button>
+          <span id="dashGeradoEm" style="color:var(--muted);font-size:12px;align-self:center;margin-left:10px"></span>
         </div>
-        <div class="dash-card">
-          <div class="dash-title">Distribuição por pilar de atendimento</div>
-          <canvas id="chartPilar"></canvas>
-        </div>
-        <div class="dash-card">
-          <div class="dash-title">Distribuição por perfil de cliente</div>
-          <canvas id="chartPerfil"></canvas>
-        </div>
-        <div class="dash-card">
-          <div class="dash-title">Funil — oportunidades por etapa</div>
-          <canvas id="chartEtapa"></canvas>
-        </div>
-        <div class="dash-card">
-          <div class="dash-title">Origens dos clientes</div>
-          <canvas id="chartOrigem"></canvas>
-        </div>
-        <div class="dash-card">
-          <div class="dash-title">Top produtos / interesse</div>
-          <canvas id="chartProduto"></canvas>
-        </div>
+        <div id="dashAlertas"></div>
+        <div class="grid" id="dashKpis"><div class="loader"></div></div>
+        <div style="margin-top:24px" id="dashConteudo"></div>
       </div>
-
-      <!-- Tabela por loja -->
-      <div class="dash-card" style="margin-top: 14px;">
-        <div class="dash-title">Performance por loja</div>
-        <div class="table-wrap" style="max-height: none;">
-          <table>
-            <thead>
-              <tr>
-                <th>Loja</th><th>Oport.</th><th>Em aberto</th><th>Convertidas</th><th>Perdidas</th>
-                <th>Taxa conv.</th><th>Valor orçado</th><th>Valor vendido</th><th>Ticket médio</th>
-              </tr>
-            </thead>
-            <tbody id="dashTblLoja"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Tabela por vendedor -->
-      <div class="dash-card" style="margin-top: 14px;">
-        <div class="dash-title">Performance por vendedor</div>
-        <div class="table-wrap" style="max-height: none;">
-          <table>
-            <thead>
-              <tr>
-                <th>Vendedor</th><th>Oport.</th><th>Em aberto</th><th>Convertidas</th><th>Perdidas</th>
-                <th>Taxa conv.</th><th>Valor vendido</th><th>Ticket médio</th>
-              </tr>
-            </thead>
-            <tbody id="dashTblVendedor"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Tempos por vendedor -->
-      <div class="dash-card" style="margin-top: 14px;">
-        <div class="dash-title">SLA dos atendimentos por vendedor</div>
-        <div class="table-wrap" style="max-height: none;">
-          <table>
-            <thead>
-              <tr>
-                <th>Vendedor</th><th>Atendimentos</th><th>Média (min)</th>
-                <th style="color:var(--ok)">🟢 Verde</th><th style="color:var(--warn)">🟡 Amarelo</th><th style="color:var(--alert)">🔴 Vermelho</th>
-              </tr>
-            </thead>
-            <tbody id="dashTblSla"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
+    </section>
   </div>
 </div>
 
-<!-- ============ MODAL DE ATENDIMENTO ============ -->
-<div id="modal" class="modal-backdrop" style="display:none;">
+<!-- ============ MODAL ATENDIMENTO ============ -->
+<div class="modal-backdrop" id="modal">
   <div class="modal">
-    <header>
-      <h2 id="modalTitulo">Atendimento</h2>
-      <button class="btn ghost small" id="btnFecharModal">✕</button>
-    </header>
+    <h2 id="modalTitulo">Atendimento</h2>
+    <div class="timer verde" id="timerBox">00:00</div>
+    <div id="modalErr" class="alert hidden"></div>
 
-    <div class="body">
-      <div id="modalErr"></div>
+    <div class="row">
+      <div><label>Pilar predominante</label><div class="chips" id="chipsPilar"></div></div>
+      <div><label>Perfil do cliente</label><div class="chips" id="chipsPerfil"></div></div>
+    </div>
+    <div><label>Produtos / serviços</label><div class="chips" id="chipsProdutos"></div></div>
+    <div class="row" style="margin-top:14px">
+      <div><label>Etapa da jornada</label><select id="selEtapa"></select></div>
+      <div><label>Status comercial</label><select id="selStatus"></select></div>
+    </div>
+    <div class="row">
+      <div><label>Próxima ação</label><input id="inpProxAcao" placeholder="ex: ligar dia 22"></div>
+      <div><label>Data próxima ação</label><input id="inpProxData" type="date"></div>
+    </div>
+    <div class="row">
+      <div><label>Valor orçado</label><input id="inpOrcado" type="number" placeholder="0"></div>
+      <div><label>Valor vendido</label><input id="inpVendido" type="number" placeholder="0"></div>
+    </div>
+    <div><label>Descritivo / observações</label><textarea id="inpDescritivo" placeholder="Anote o que foi conversado..."></textarea></div>
 
-      <!-- Cabeçalho cliente + timer -->
-      <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin-bottom:14px;">
-        <div style="flex:1; min-width: 240px;">
-          <div style="font-size:11px; color: var(--muted); text-transform: uppercase;">Cliente</div>
-          <div style="font-size:18px; font-weight:700;" id="modalCliente">—</div>
-          <div style="font-size:12px; color: var(--muted);" id="modalSub">—</div>
-        </div>
-        <div class="timer-box">
-          <div>
-            <div class="lbl">Tempo de atendimento</div>
-            <div class="val" id="modalTimer">00:00</div>
-          </div>
-          <button class="btn small success" id="btnIniciar">▶ Iniciar</button>
-        </div>
-      </div>
-
-      <!-- Pilar -->
-      <label>Pilar de atendimento</label>
-      <div class="chips" id="chipsPilar"></div>
-
-      <!-- Perfil -->
-      <label style="margin-top:12px;">Perfil do cliente</label>
-      <div class="chips" id="chipsPerfil"></div>
-
-      <!-- Produtos (multi) -->
-      <label style="margin-top:12px;">Produtos / interesse (selecione 1 ou mais)</label>
-      <div class="chips" id="chipsProdutos"></div>
-
-      <!-- Etapa, status, valores -->
-      <div class="grid-2" style="margin-top:12px;">
-        <div>
-          <label>Etapa da jornada</label>
-          <select id="selEtapa"></select>
-        </div>
-        <div>
-          <label>Status comercial</label>
-          <select id="selStatus"></select>
-        </div>
-        <div>
-          <label>Valor orçado (R$)</label>
-          <input id="inpOrcado" type="number" min="0" step="0.01" placeholder="0,00">
-        </div>
-        <div>
-          <label>Valor vendido (R$)</label>
-          <input id="inpVendido" type="number" min="0" step="0.01" placeholder="0,00">
-        </div>
-        <div>
-          <label>Próxima ação <span id="hintProx" style="color:var(--muted); font-size:11px;"></span></label>
-          <input id="inpProxAcao" type="text" placeholder="ex: Ligar para apresentar lente premium">
-        </div>
-        <div>
-          <label>Data da próxima ação</label>
-          <input id="inpProxData" type="date">
-        </div>
-      </div>
-
-      <label style="margin-top:12px;">Descritivo do atendimento</label>
-      <textarea id="inpDescritivo" rows="3" placeholder="Resumo do atendimento, objeções, decisões..."></textarea>
-
-      <details>
-        <summary>📜 Histórico de atendimentos</summary>
-        <div id="histList"><div class="loader"></div></div>
-      </details>
+    <div style="margin-top:20px"><h3 style="font-size:14px;margin:0 0 8px;color:var(--muted)">Histórico</h3>
+      <div id="histList" style="font-size:12px;color:var(--muted)"></div>
     </div>
 
-    <footer>
-      <button class="btn ghost" id="btnCancelarModal">Cancelar</button>
-      <button class="btn danger" id="btnFinalizar">✓ Finalizar atendimento</button>
-    </footer>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="btnFecharModal">Fechar</button>
+      <button class="btn btn-ok" id="btnIniciar">▶ Iniciar</button>
+      <button class="btn btn-warn" id="btnFinalizar">✓ Finalizar atendimento</button>
+    </div>
   </div>
 </div>
 
 <!-- ============ MODAL NOVA OPORTUNIDADE ============ -->
-<div id="modalNova" class="modal-backdrop" style="display:none;">
-  <div class="modal">
-    <header>
-      <h2>Nova oportunidade</h2>
-      <button class="btn ghost small" id="btnFecharNova">✕</button>
-    </header>
-
-    <div class="body">
-      <div id="novaErr"></div>
-
-      <div class="grid-2">
-        <div>
-          <label>Nome do cliente *</label>
-          <input id="novaNome" type="text" placeholder="ex: Maria Silva">
-        </div>
-        <div>
-          <label>Telefone</label>
-          <input id="novaTel" type="text" placeholder="(17) 99999-0000">
-        </div>
-        <div>
-          <label>Loja</label>
-          <input id="novaLoja" type="text" placeholder="L073 — Iguatemi SJRP">
-        </div>
-        <div id="boxVendedor">
-          <label>Vendedor responsável</label>
-          <select id="novaVendedor"><option value="">— manter eu mesmo —</option></select>
-        </div>
-        <div>
-          <label>Origem</label>
-          <select id="novaOrigem"></select>
-        </div>
-        <div>
-          <label>Prioridade</label>
-          <select id="novaPrioridade"></select>
-        </div>
-      </div>
-
-      <label style="margin-top:12px;">Necessidade principal do cliente</label>
-      <input id="novaNecessidade" type="text" placeholder="ex: Receita nova e conforto para trabalho em tela">
-
-      <label style="margin-top:12px;">Pilar de atendimento</label>
-      <div class="chips" id="novaChipsPilar"></div>
-
-      <label style="margin-top:12px;">Perfil do cliente</label>
-      <div class="chips" id="novaChipsPerfil"></div>
-
-      <label style="margin-top:12px;">Produtos / interesse</label>
-      <div class="chips" id="novaChipsProdutos"></div>
-
-      <div class="grid-2" style="margin-top:12px;">
-        <div>
-          <label>Etapa da jornada</label>
-          <select id="novaEtapa"></select>
-        </div>
-        <div>
-          <label>Status comercial</label>
-          <select id="novaStatus"></select>
-        </div>
-        <div>
-          <label>Valor orçado (R$)</label>
-          <input id="novaOrcado" type="number" min="0" step="0.01" placeholder="0,00">
-        </div>
-        <div>
-          <label>Probabilidade (%)</label>
-          <input id="novaProb" type="number" min="0" max="100" step="5" value="50">
-        </div>
-        <div>
-          <label>Próxima ação</label>
-          <input id="novaProxAcao" type="text" placeholder="ex: Agendar avaliação técnica">
-        </div>
-        <div>
-          <label>Data da próxima ação</label>
-          <input id="novaProxData" type="date">
-        </div>
-      </div>
-
-      <label style="margin-top:12px;">Observação inicial</label>
-      <textarea id="novaObs" rows="2" placeholder="Anotação rápida sobre o contato..."></textarea>
-
-      <label style="margin-top:12px; display:flex; align-items:center; gap:8px;">
-        <input id="novaIniciar" type="checkbox" style="width:auto;"> Iniciar atendimento agora
-      </label>
+<div class="modal-backdrop" id="modalNova">
+  <div class="modal" style="max-width:560px">
+    <h2>Nova oportunidade</h2>
+    <div id="novaErr" class="alert hidden"></div>
+    <div class="row">
+      <div><label>Nome do cliente *</label><input id="novaNome"></div>
+      <div><label>Telefone</label><input id="novaTelefone"></div>
     </div>
-
-    <footer>
-      <button class="btn ghost" id="btnCancelarNova">Cancelar</button>
+    <div class="row" id="boxVendedor">
+      <div style="grid-column:1/-1"><label>Vendedor responsável</label>
+        <select id="novaVendedor"><option value="">— selecionar —</option></select>
+      </div>
+    </div>
+    <div class="row">
+      <div><label>Origem</label>
+        <select id="novaOrigem">
+          <option>Loja física</option><option>Indicação</option><option>Instagram</option>
+          <option>WhatsApp</option><option>Site</option><option>Outro</option>
+        </select>
+      </div>
+      <div><label>Produto interesse</label><input id="novaProduto" placeholder="ex: Armação + lente"></div>
+    </div>
+    <div><label>Necessidade principal</label><input id="novaNecessidade"></div>
+    <div style="margin-top:14px">
+      <label><input type="checkbox" id="novaIniciar" checked> Iniciar atendimento agora</label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="btnFecharNova">Cancelar</button>
       <button class="btn" id="btnSalvarNova">✓ Criar oportunidade</button>
-    </footer>
+    </div>
   </div>
 </div>
 
 <script>
-// ============== CONFIG DA API ==============
-// URL do app implantado no Apps Script (.../exec).
-// Substitua se mudar de implantação.
+// ===================================================================
+// CONFIG DA API
+// ===================================================================
 const API_URL = 'https://script.google.com/macros/s/AKfycbwgFdX8yep42V_8au6EiSAhCBHPgcApGQ18QOPgGSHF5fIdVkk8bi5114bHkM2qK38JHQ/exec';
 
-/**
- * Chama o backend via JSONP — única forma estável de o GitHub Pages
- * conversar com o Apps Script sem ser bloqueado por CORS.
- *
- * Uso:  apiCall('login', { user:'ana', pass:'123' }).then(r => ...)
- *
- * Retorna Promise. Timeout padrão: 15s.
- */
+// ===================================================================
+// JSONP — bypass de CORS para conversar com Apps Script
+// ===================================================================
 let __jsonpSeq = 0;
 function apiCall(action, data, timeoutMs) {
-  timeoutMs = timeoutMs || 15000;
+  timeoutMs = timeoutMs || 20000;
   return new Promise((resolve, reject) => {
-    const cbName = '__cb_' + (++__jsonpSeq) + '_' + Date.now();
+    const cbName = '__cb' + (++__jsonpSeq) + '_' + Date.now();
     const tag = document.createElement('script');
     let done = false;
+
     const cleanup = () => {
       try { delete window[cbName]; } catch(e) { window[cbName] = undefined; }
       if (tag.parentNode) tag.parentNode.removeChild(tag);
     };
     const timer = setTimeout(() => {
       if (done) return; done = true; cleanup();
-      reject(new Error('Tempo de resposta esgotado (15s).'));
+      reject(new Error('Tempo de resposta esgotado (' + (timeoutMs/1000) + 's). Verifique se a URL da API está pública.'));
     }, timeoutMs);
 
     window[cbName] = (resp) => {
@@ -690,150 +297,152 @@ function apiCall(action, data, timeoutMs) {
     };
     tag.onerror = () => {
       if (done) return; done = true; clearTimeout(timer); cleanup();
-      reject(new Error('Falha ao conectar à API.'));
+      reject(new Error('Falha ao conectar à API. A URL do Apps Script pode estar incorreta ou sem permissão pública.'));
     };
 
     const payload = encodeURIComponent(JSON.stringify(data || {}));
-    tag.src = API_URL +
-      '?action=' + encodeURIComponent(action) +
-      '&data=' + payload +
-      '&callback=' + cbName;
+    tag.src = API_URL + '?action=' + encodeURIComponent(action) + '&data=' + payload + '&callback=' + cbName;
     document.body.appendChild(tag);
   });
 }
 
-// ============== ESTADO GLOBAL ==============
-let estado = {
+// ===================================================================
+// ESTADO E HELPERS
+// ===================================================================
+const estado = {
   usuario: null,
   oportunidades: [],
   listas: null,
   config: { slaAmareloMin: 2, slaVermelhoMin: 5 },
   filtro: { busca:'', status:'', pilar:'' },
-  modal: {
-    aberto: false,
-    op: null,
-    pilar: null,
-    perfil: null,
-    produtos: [],
-    intervalo: null,
-    inicioMs: null
-  }
+  modal: { aberto:false, op:null, pilar:null, perfil:null, produtos:[], inicioMs:null, intervalo:null }
 };
 
-// ============== UTILITÁRIOS ==============
-function el(id){ return document.getElementById(id); }
-function show(id, on=true){ el(id).style.display = on ? '' : 'none'; }
-function setHTML(id, html){ el(id).innerHTML = html; }
-function setText(id, txt){ el(id).textContent = txt; }
-function setErr(id, msg){
-  if (!msg) { el(id).innerHTML = ''; return; }
-  el(id).innerHTML = '<div class="alert">'+msg+'</div>';
+const $ = id => document.getElementById(id);
+const setHTML = (id, html) => { const e = $(id); if (e) e.innerHTML = html; };
+const setText = (id, text) => { const e = $(id); if (e) e.textContent = text; };
+const show = (id, on) => { const e = $(id); if (e) e.classList.toggle('hidden', !on); };
+const showModal = (id, on) => { const e = $(id); if (e) e.classList.toggle('show', on); };
+const setErr = (id, msg) => {
+  const e = $(id); if (!e) return;
+  if (msg) { e.textContent = msg; e.classList.remove('hidden'); }
+  else { e.textContent = ''; e.classList.add('hidden'); }
+};
+function escapeHtml(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
-function fmtMin(m){
-  if (m === null || m === undefined || isNaN(m)) return '—';
-  const total = Math.floor(m*60);
-  const mm = Math.floor(total/60);
-  const ss = total%60;
-  return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0');
+function fmtMoney(v){
+  v = Number(v) || 0;
+  return 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
-function priorPill(p){
-  const k = String(p||'').toLowerCase();
-  if (k.includes('alta')) return '<span class="pill alta">Alta</span>';
-  if (k.includes('méd') || k.includes('med')) return '<span class="pill media">Média</span>';
-  if (k.includes('baix')) return '<span class="pill baixa">Baixa</span>';
-  return '<span class="pill status">'+(p||'—')+'</span>';
-}
-function semaforoDot(sem){
-  if (!sem) return '<span class="dot cinza"></span>';
-  return '<span class="dot '+sem+'"></span>';
+function semaforoDot(s){
+  return '<span class="dot dot-'+(s||'verde')+'"></span>';
 }
 
-// ============== LOGIN ==============
-el('btnLogin').addEventListener('click', fazerLogin);
-el('inpSenha').addEventListener('keydown', e => { if (e.key === 'Enter') fazerLogin(); });
+// ===================================================================
+// TESTE DE CONEXÃO NA TELA DE LOGIN
+// ===================================================================
+function testarConexao(){
+  setText('apiStatus','testando conexão...');
+  apiCall('ping', {}, 8000)
+    .then(r => {
+      if (r && r.ok) setText('apiStatus', '✓ conectado à API');
+      else setText('apiStatus', '⚠ API respondeu mas com erro: ' + (r && r.erro));
+    })
+    .catch(err => setText('apiStatus', '✗ ' + err.message));
+}
+testarConexao();
+
+// ===================================================================
+// LOGIN
+// ===================================================================
+$('btnLogin').addEventListener('click', fazerLogin);
+$('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') fazerLogin(); });
 
 function fazerLogin(){
   setErr('loginErr','');
-  const login = el('inpLogin').value.trim();
-  const senha = el('inpSenha').value;
-  if (!login || !senha) return setErr('loginErr','Informe login e senha.');
-  el('btnLogin').disabled = true;
-  el('btnLogin').textContent = 'Entrando...';
+  const user = $('loginUser').value.trim();
+  const pass = $('loginPass').value;
+  if (!user || !pass) return setErr('loginErr','Informe login e senha.');
 
-  // Timeout de segurança: se servidor não responder em 15s, destrava o botão
-  const timeoutId = setTimeout(() => {
-    el('btnLogin').disabled = false;
-    el('btnLogin').textContent = 'Entrar';
-    setErr('loginErr','Tempo de resposta esgotado. Verifique se você rodou setupEstruturaPlanilha() e se a propriedade SPREADSHEET_ID está configurada.');
-  }, 15000);
+  $('btnLogin').disabled = true;
+  $('btnLogin').textContent = 'Entrando...';
 
-  // O apiCall já tem timeout próprio; o setTimeout local fica como fallback visual
-  apiCall('login', { user: login, pass: senha })
+  apiCall('login', { user: user, pass: pass })
     .then(r => {
-      clearTimeout(timeoutId);
-      el('btnLogin').disabled = false;
-      el('btnLogin').textContent = 'Entrar';
+      $('btnLogin').disabled = false;
+      $('btnLogin').textContent = 'Entrar';
       if (!r || !r.ok) return setErr('loginErr', (r && r.erro) || 'Erro no login.');
       estado.usuario = r.usuario;
       iniciarApp();
     })
     .catch(err => {
-      clearTimeout(timeoutId);
-      el('btnLogin').disabled = false;
-      el('btnLogin').textContent = 'Entrar';
-      setErr('loginErr','Falha: ' + (err && err.message ? err.message : 'erro desconhecido') + ' — abra o console (F12) para detalhes.');
-      console.error('Erro no login:', err);
+      $('btnLogin').disabled = false;
+      $('btnLogin').textContent = 'Entrar';
+      setErr('loginErr', err.message || 'Erro desconhecido. Abra F12 → Console.');
+      console.error('Login falhou:', err);
     });
 }
 
-el('btnLogout').addEventListener('click', () => {
+$('btnLogout').addEventListener('click', () => {
   estado.usuario = null;
   show('appScreen', false);
-  show('loginScreen', true);
-  el('inpSenha').value = '';
+  $('loginScreen').classList.remove('hidden');
+  $('loginUser').value = '';
+  $('loginPass').value = '';
 });
 
-// ============== INICIAR APP ==============
+// ===================================================================
+// INICIAR APP
+// ===================================================================
 function iniciarApp(){
-  show('loginScreen', false);
+  $('loginScreen').classList.add('hidden');
   show('appScreen', true);
   setText('userNome', estado.usuario.nome);
-  setText('tagPapel', estado.usuario.papel.toUpperCase() + (estado.usuario.loja ? ' · ' + estado.usuario.loja : ''));
+  setText('userPapel', estado.usuario.papel + (estado.usuario.loja ? ' · ' + estado.usuario.loja : ''));
+
+  // mostra abas extras para gerentes/admins
   if (estado.usuario.papel === 'gerente' || estado.usuario.papel === 'admin') {
-    el('tabTempos').style.display = '';
-    el('tabDashboard').style.display = '';
+    show('tabTempos', true);
+    show('tabDash', true);
   } else {
-    el('tabTempos').style.display = 'none';
-    el('tabDashboard').style.display = 'none';
+    show('tabTempos', false);
+    show('tabDash', false);
   }
   carregarOportunidades();
 }
 
-// ============== TABS ==============
-el('tabs').addEventListener('click', e => {
-  if (!e.target.classList.contains('tab')) return;
-  if (e.target.style.display === 'none') return;
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  e.target.classList.add('active');
-  const tab = e.target.dataset.tab;
-  show('tabOportunidades', tab === 'oportunidades');
-  show('tabTemposContent', tab === 'tempos');
-  show('tabDashboardContent', tab === 'dashboard');
-  if (tab === 'tempos') carregarTempos();
-  if (tab === 'dashboard') carregarDashboard();
+// ===================================================================
+// ABAS
+// ===================================================================
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    const tab = t.dataset.tab;
+    show('paneOportunidades', tab === 'oportunidades');
+    show('paneTempos', tab === 'tempos');
+    show('paneDashboard', tab === 'dashboard');
+    if (tab === 'tempos') carregarTempos();
+    if (tab === 'dashboard') carregarDashboard();
+  });
 });
 
-// ============== OPORTUNIDADES ==============
-el('btnRefresh').addEventListener('click', carregarOportunidades);
-el('filtroBusca').addEventListener('input', e => { estado.filtro.busca = e.target.value.toLowerCase(); renderTabela(); });
-el('filtroStatus').addEventListener('change', e => { estado.filtro.status = e.target.value; renderTabela(); });
-el('filtroPilar').addEventListener('change', e => { estado.filtro.pilar = e.target.value; renderTabela(); });
+// ===================================================================
+// OPORTUNIDADES
+// ===================================================================
+$('filtroBusca').addEventListener('input', e => { estado.filtro.busca = e.target.value.toLowerCase(); renderTabela(); });
+$('filtroStatus').addEventListener('change', e => { estado.filtro.status = e.target.value; renderTabela(); });
+$('filtroPilar').addEventListener('change', e => { estado.filtro.pilar = e.target.value; renderTabela(); });
+$('btnRefresh').addEventListener('click', carregarOportunidades);
 
 function carregarOportunidades(){
-  setHTML('tblBody','<tr><td colspan="10"><div class="loader"></div></td></tr>');
+  setHTML('tblBody','<tr><td colspan="9"><div class="loader"></div></td></tr>');
   apiCall('listarOportunidades', { usuario: estado.usuario })
     .then(r => {
-      if (!r.ok) { setHTML('tblBody','<tr><td colspan="10" class="empty">'+ (r.erro||'Erro') +'</td></tr>'); return; }
+      if (!r.ok) { setHTML('tblBody','<tr><td colspan="9" class="empty">'+ escapeHtml(r.erro||'Erro') +'</td></tr>'); return; }
       estado.oportunidades = r.oportunidades || [];
       estado.listas = r.listas;
       estado.config = r.config || estado.config;
@@ -841,402 +450,178 @@ function carregarOportunidades(){
       renderStats();
       renderTabela();
     })
-    .catch(err => {
-      setHTML('tblBody','<tr><td colspan="10" class="empty">Falha: '+err.message+'</td></tr>');
-    });
+    .catch(err => setHTML('tblBody','<tr><td colspan="9" class="empty">Falha: '+escapeHtml(err.message)+'</td></tr>'));
 }
 
 function popularFiltros(){
-  const selS = el('filtroStatus');
-  const selP = el('filtroPilar');
-  selS.innerHTML = '<option value="">Todos os status</option>';
-  (estado.listas.status||[]).forEach(s => selS.innerHTML += '<option>'+s+'</option>');
-  selP.innerHTML = '<option value="">Todos os pilares</option>';
-  (estado.listas.pilares||[]).forEach(s => selP.innerHTML += '<option>'+s+'</option>');
+  const selS = $('filtroStatus');
+  const selP = $('filtroPilar');
+  selS.innerHTML = '<option value="">Todos os status</option>' +
+    (estado.listas.status||[]).map(s => '<option>'+escapeHtml(s)+'</option>').join('');
+  selP.innerHTML = '<option value="">Todos os pilares</option>' +
+    (estado.listas.pilares||[]).map(s => '<option>'+escapeHtml(s)+'</option>').join('');
 }
 
 function renderStats(){
   const total = estado.oportunidades.length;
-  const ativos = estado.oportunidades.filter(o => o.atendimentoAtivo).length;
-  const amarelos = estado.oportunidades.filter(o => o.semaforo === 'amarelo').length;
-  const vermelhos = estado.oportunidades.filter(o => o.semaforo === 'vermelho').length;
-  const convertidos = estado.oportunidades.filter(o =>
-    String(o.Status_Comercial||'').toLowerCase().includes('convert')
-  ).length;
-  setHTML('statGrid',
-    statBox('Oportunidades', total) +
-    statBox('Em atendimento', ativos, ativos>0?'ok':'') +
-    statBox('Acima do SLA amarelo', amarelos, amarelos>0?'warn':'') +
-    statBox('Acima do SLA vermelho', vermelhos, vermelhos>0?'alert':'') +
-    statBox('Convertidas', convertidos, 'ok')
-  );
-}
-function statBox(lbl,val,cls){
-  return '<div class="stat"><div class="lbl">'+lbl+'</div><div class="val '+(cls||'')+'">'+val+'</div></div>';
+  const aberto = estado.oportunidades.filter(o => {
+    const s = String(o.Status_Comercial||'').toLowerCase();
+    return s !== 'convertido' && s !== 'perdido';
+  }).length;
+  const conv = estado.oportunidades.filter(o => String(o.Status_Comercial||'').toLowerCase() === 'convertido').length;
+  const fat = estado.oportunidades.reduce((s,o) => s + (Number(o.Valor_Vendido)||0), 0);
+  setText('kpiTotal', total);
+  setText('kpiAberto', aberto);
+  setText('kpiConv', conv);
+  setText('kpiFat', fmtMoney(fat));
 }
 
 function renderTabela(){
-  const lista = estado.oportunidades.filter(o => {
-    if (estado.filtro.status && o.Status_Comercial !== estado.filtro.status) return false;
-    if (estado.filtro.pilar && o.Pilar_Principal !== estado.filtro.pilar) return false;
-    if (estado.filtro.busca){
-      const bag = [
-        o.Nome_Cliente, o.Telefone, o.Etapa_Jornada, o.Produto_Interesse,
-        o.Pilar_Principal, o.Perfil_Cliente, o.Vendedor_Responsavel
-      ].join(' ').toLowerCase();
-      if (!bag.includes(estado.filtro.busca)) return false;
-    }
-    return true;
-  });
+  let lista = estado.oportunidades.slice();
+  const f = estado.filtro;
+  if (f.busca) {
+    lista = lista.filter(o =>
+      [o.Nome_Cliente, o.Telefone, o.ID_Oportunidade]
+        .some(x => String(x||'').toLowerCase().indexOf(f.busca) >= 0));
+  }
+  if (f.status) lista = lista.filter(o => o.Status_Comercial === f.status);
+  if (f.pilar) lista = lista.filter(o => o.Pilar_Principal === f.pilar);
+
   if (!lista.length) {
-    setHTML('tblBody','<tr><td colspan="10" class="empty">Nenhuma oportunidade encontrada.</td></tr>');
+    setHTML('tblBody','<tr><td colspan="9" class="empty">Nenhuma oportunidade encontrada.</td></tr>');
     return;
   }
-  const html = lista.map(o => {
-    const sem = o.atendimentoAtivo ? o.semaforo : 'cinza';
-    const tempo = o.atendimentoAtivo
-      ? '<small style="color:var(--muted)">'+fmtMin(o.tempoAtendimentoMin)+'</small>'
-      : '';
-    return '<tr data-id="'+o.ID_Oportunidade+'">' +
-      '<td>'+ semaforoDot(sem) + tempo +'</td>' +
-      '<td><b>'+ (o.Nome_Cliente||'—') +'</b><br><small style="color:var(--muted)">'+ (o.Telefone||'') +'</small></td>' +
-      '<td>'+ (o.Loja||'—') +'</td>' +
-      '<td>'+ (o.Etapa_Jornada||'—') +'</td>' +
-      '<td><span class="pill status">'+ (o.Status_Comercial||'—') +'</span></td>' +
-      '<td>'+ (o.Pilar_Principal||'—') +'</td>' +
-      '<td>'+ (o.Perfil_Cliente||'—') +'</td>' +
-      '<td>'+ (o.Produto_Interesse||'—') +'</td>' +
-      '<td>'+ (o.Proxima_Acao||'—') +'</td>' +
-      '<td>'+ priorPill(o.Prioridade) +'</td>' +
-    '</tr>';
-  }).join('');
-  setHTML('tblBody', html);
-  // 1 clique para abrir
-  document.querySelectorAll('#tblBody tr').forEach(tr => {
-    tr.addEventListener('click', () => {
-      const id = tr.dataset.id;
-      const op = estado.oportunidades.find(o => o.ID_Oportunidade === id);
-      if (op) abrirModal(op);
+  setHTML('tblBody', lista.map((o,i) =>
+    '<tr>'+
+      '<td><b>'+escapeHtml(o.Nome_Cliente||'—')+'</b><br><small style="color:var(--muted)">'+escapeHtml(o.Telefone||'')+'</small></td>'+
+      '<td>'+escapeHtml(o.Vendedor_Responsavel||'—')+'</td>'+
+      '<td>'+escapeHtml(o.Loja||'—')+'</td>'+
+      '<td><span class="badge">'+escapeHtml(o.Pilar_Principal||'—')+'</span></td>'+
+      '<td>'+escapeHtml(o.Status_Comercial||'—')+'</td>'+
+      '<td>'+escapeHtml(o.Etapa_Jornada||'—')+'</td>'+
+      '<td>'+escapeHtml(o.Proxima_Acao||'—')+'</td>'+
+      '<td>'+(Number(o.Valor_Vendido)?fmtMoney(o.Valor_Vendido):fmtMoney(o.Valor_Orcado))+'</td>'+
+      '<td><button class="row-btn" data-i="'+i+'">Atender</button></td>'+
+    '</tr>'
+  ).join(''));
+
+  document.querySelectorAll('.row-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      const idx = Number(b.dataset.i);
+      abrirModal(lista[idx]);
     });
   });
 }
 
-// ============== MODAL DE ATENDIMENTO ==============
-el('btnFecharModal').addEventListener('click', fecharModal);
-el('btnCancelarModal').addEventListener('click', fecharModal);
-el('btnIniciar').addEventListener('click', iniciarAtendimento);
-el('btnFinalizar').addEventListener('click', finalizarAtendimento);
+// ===================================================================
+// MODAL ATENDIMENTO
+// ===================================================================
+$('btnFecharModal').addEventListener('click', fecharModal);
+$('btnIniciar').addEventListener('click', iniciarAtendimento);
+$('btnFinalizar').addEventListener('click', finalizarAtendimento);
 
 function abrirModal(op){
-  estado.modal.op = op;
-  estado.modal.pilar = op.Pilar_Principal || null;
-  estado.modal.perfil = op.Perfil_Cliente || null;
-  estado.modal.produtos = op.Produto_Interesse
-    ? String(op.Produto_Interesse).split('|').map(s=>s.trim()).filter(Boolean)
-    : [];
-
-  setText('modalCliente', op.Nome_Cliente || '—');
-  setText('modalSub', [op.Telefone, op.Loja, 'Oportunidade ' + op.ID_Oportunidade].filter(Boolean).join(' · '));
+  estado.modal = {
+    aberto:true, op:op, pilar:op.Pilar_Principal||null, perfil:op.Perfil_Cliente||null,
+    produtos: op.Produto_Interesse ? String(op.Produto_Interesse).split(',').map(s=>s.trim()) : [],
+    inicioMs:null, intervalo:null
+  };
   setErr('modalErr','');
+  setText('modalTitulo','Atendimento — '+ (op.Nome_Cliente||'—'));
 
   // chips
-  renderChips('chipsPilar', estado.listas.pilares, estado.modal.pilar ? [estado.modal.pilar] : [], false, v => {
-    estado.modal.pilar = v; renderChips('chipsPilar', estado.listas.pilares, [v], false, arguments.callee);
-  });
-  renderChips('chipsPerfil', estado.listas.perfis, estado.modal.perfil ? [estado.modal.perfil] : [], false, v => {
-    estado.modal.perfil = v; renderChips('chipsPerfil', estado.listas.perfis, [v], false, arguments.callee);
-  });
-  renderChipsMulti('chipsProdutos', estado.listas.produtos, estado.modal.produtos);
+  renderChips('chipsPilar', estado.listas.pilares, () => estado.modal.pilar, v => estado.modal.pilar = v);
+  renderChips('chipsPerfil', estado.listas.perfis, () => estado.modal.perfil, v => estado.modal.perfil = v);
+  renderChipsMulti('chipsProdutos', estado.listas.produtos, () => estado.modal.produtos);
 
   // selects
-  preencheSelect('selEtapa', estado.listas.sequencia, op.Etapa_Jornada);
-  preencheSelect('selStatus', estado.listas.status, op.Status_Comercial);
+  $('selEtapa').innerHTML = (estado.listas.etapas||[]).map(s => '<option'+(s===op.Etapa_Jornada?' selected':'')+'>'+escapeHtml(s)+'</option>').join('');
+  $('selStatus').innerHTML = (estado.listas.status||[]).map(s => '<option'+(s===op.Status_Comercial?' selected':'')+'>'+escapeHtml(s)+'</option>').join('');
+  $('inpProxAcao').value = op.Proxima_Acao || '';
+  $('inpProxData').value = '';
+  $('inpOrcado').value = op.Valor_Orcado || '';
+  $('inpVendido').value = op.Valor_Vendido || '';
+  $('inpDescritivo').value = '';
 
-  // valores e próxima ação
-  el('inpOrcado').value = op.Valor_Orcado || '';
-  el('inpVendido').value = op.Valor_Vendido || '';
-  el('inpProxAcao').value = op.Proxima_Acao || sugerirProximaAcao(op.Etapa_Jornada);
-  el('hintProx').textContent = '· sugestão: ' + (sugerirProximaAcao(op.Etapa_Jornada) || '—');
-  el('inpProxData').value = '';
-  el('inpDescritivo').value = '';
-
-  // timer / botão iniciar
-  pararTimer();
-  if (op.atendimentoAtivo) {
-    // tempo já em curso → continuar contando
-    estado.modal.inicioMs = Date.now() - Math.round((op.tempoAtendimentoMin||0) * 60000);
-    iniciarTimerVisual();
-    el('btnIniciar').textContent = '● Em atendimento';
-    el('btnIniciar').disabled = true;
-  } else {
-    estado.modal.inicioMs = null;
-    setText('modalTimer','00:00');
-    el('modalTimer').className = 'val';
-    el('btnIniciar').textContent = '▶ Iniciar';
-    el('btnIniciar').disabled = false;
-  }
+  // timer
+  $('timerBox').textContent = '00:00';
+  $('timerBox').className = 'timer verde';
+  $('btnIniciar').disabled = false;
+  $('btnIniciar').textContent = '▶ Iniciar';
 
   // histórico
-  setHTML('histList','<div class="loader"></div>');
+  setHTML('histList','<div class="loader" style="margin:10px auto;width:18px;height:18px"></div>');
   apiCall('historicoAtendimentos', { usuario: estado.usuario, idOportunidade: op.ID_Oportunidade })
     .then(r => renderHistorico((r && r.historico) || []))
-    .catch(() => setHTML('histList','<div class="empty">Sem histórico.</div>'));
+    .catch(()=> setHTML('histList','<div style="color:var(--muted)">Sem histórico.</div>'));
 
-  show('modal', true);
+  showModal('modal', true);
 }
+
 function fecharModal(){
   pararTimer();
-  show('modal', false);
-  estado.modal.op = null;
+  showModal('modal', false);
 }
 
-function sugerirProximaAcao(etapaAtual){
-  const seq = estado.listas.sequencia || [];
-  const idx = seq.indexOf(etapaAtual);
-  if (idx < 0 || idx >= seq.length - 1) return 'Pós-venda em 7 dias';
-  const prox = seq[idx + 1];
-  const map = {
-    'Primeiro contato': 'Agendar visita / consultoria',
-    'Diagnóstico de necessidade': 'Apresentar curadoria de armações e lentes',
-    'Curadoria / apresentação': 'Enviar orçamento estruturado',
-    'Orçamento enviado': 'Follow-up para tirar dúvidas e fechar',
-    'Follow-up': 'Apresentar condição/alternativa para fechamento',
-    'Negociação': 'Confirmar fechamento e medidas',
-    'Fechamento': 'Confirmar entrega e adaptação',
-    'Convertido': 'Pós-venda + revisão em 30 dias',
-    'Pós-venda': 'Reativar para 2º par / família'
-  };
-  return map[prox] || ('Avançar para: ' + prox);
-}
-
-function preencheSelect(id, lista, atual){
-  const sel = el(id);
-  sel.innerHTML = '<option value="">—</option>' + (lista||[]).map(v =>
-    '<option'+(v===atual?' selected':'')+'>'+v+'</option>'
+function renderChips(id, lista, getAtivo, setAtivo){
+  const atual = getAtivo();
+  $(id).innerHTML = (lista||[]).map(v =>
+    '<span class="chip'+(v===atual?' active':'')+'" data-v="'+escapeHtml(v)+'">'+escapeHtml(v)+'</span>'
   ).join('');
-}
-
-function renderChips(containerId, lista, selecionados, multi, onClick){
-  const html = (lista||[]).map(v => {
-    const ativo = selecionados.indexOf(v) >= 0;
-    const extra = ativo ? ' ' + classePilar(v) : '';
-    return '<span class="chip'+(ativo?' active'+extra:'')+'" data-v="'+v.replace(/"/g,'&quot;')+'">'+v+'</span>';
-  }).join('');
-  const c = el(containerId);
-  c.innerHTML = html;
-  c.querySelectorAll('.chip').forEach(ch => {
-    ch.addEventListener('click', () => onClick(ch.dataset.v));
-  });
-}
-function classePilar(v){
-  v = String(v||'').toLowerCase();
-  if (v.includes('estilo')) return 'estilo';
-  if (v.includes('técnico') || v.includes('tecnico')) return 'tecnico';
-  if (v.includes('confiança') || v.includes('relacionamento')) return 'confianca';
-  return '';
-}
-function renderChipsMulti(containerId, lista, selecionados){
-  const html = (lista||[]).map(v => {
-    const ativo = selecionados.indexOf(v) >= 0;
-    return '<span class="chip'+(ativo?' active':'')+'" data-v="'+v.replace(/"/g,'&quot;')+'">'+v+'</span>';
-  }).join('');
-  const c = el(containerId);
-  c.innerHTML = html;
-  c.querySelectorAll('.chip').forEach(ch => {
-    ch.addEventListener('click', () => {
-      const v = ch.dataset.v;
-      const i = estado.modal.produtos.indexOf(v);
-      if (i >= 0) estado.modal.produtos.splice(i,1); else estado.modal.produtos.push(v);
-      renderChipsMulti(containerId, lista, estado.modal.produtos);
+  $(id).querySelectorAll('.chip').forEach(c => {
+    c.addEventListener('click', () => {
+      setAtivo(c.dataset.v);
+      renderChips(id, lista, getAtivo, setAtivo);
     });
   });
 }
 
-function renderHistorico(lista){
-  if (!lista.length) { setHTML('histList','<div style="font-size:12px; color:var(--muted); padding:8px;">Nenhum atendimento registrado.</div>'); return; }
-  setHTML('histList', lista.map(h =>
-    '<div class="hist-item">'+
-      '<div class="meta">'+(h.Inicio||'—')+' → '+(h.Fim||'—')+' · '+h.Duracao_min+' min · '+(h.Vendedor||'—')+'</div>'+
-      '<div><b>'+(h.Etapa_Jornada||'—')+'</b> · '+(h.Status_Comercial||'—')+'</div>'+
-      (h.Descritivo ? '<div style="margin-top:4px;">'+escapeHtml(h.Descritivo)+'</div>':'')+
-      (h.Proxima_Acao ? '<div style="margin-top:4px; color:var(--muted);">Próxima ação: '+escapeHtml(h.Proxima_Acao)+'</div>':'')+
+function renderChipsMulti(id, lista, getLista){
+  const sel = getLista();
+  $(id).innerHTML = (lista||[]).map(v =>
+    '<span class="chip'+(sel.indexOf(v)>=0?' active':'')+'" data-v="'+escapeHtml(v)+'">'+escapeHtml(v)+'</span>'
+  ).join('');
+  $(id).querySelectorAll('.chip').forEach(c => {
+    c.addEventListener('click', () => {
+      const v = c.dataset.v;
+      const arr = getLista();
+      const i = arr.indexOf(v);
+      if (i >= 0) arr.splice(i,1); else arr.push(v);
+      renderChipsMulti(id, lista, getLista);
+    });
+  });
+}
+
+function renderHistorico(h){
+  if (!h.length) { setHTML('histList','<div style="color:var(--muted)">Sem atendimentos anteriores.</div>'); return; }
+  setHTML('histList', h.map(a =>
+    '<div style="padding:8px;border-bottom:1px solid var(--border)">'+
+      '<b>'+escapeHtml(a.Vendedor||'—')+'</b> · '+escapeHtml(a.Inicio||'—')+' · '+a.Duracao_min+' min'+
+      (a.Descritivo ? '<br><span style="color:var(--text)">'+escapeHtml(a.Descritivo)+'</span>' : '')+
     '</div>'
   ).join(''));
-}
-function escapeHtml(s){
-  return String(s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-}
-
-// ============== MODAL NOVA OPORTUNIDADE ==============
-el('btnNovaOp').addEventListener('click', abrirModalNova);
-el('btnFecharNova').addEventListener('click', () => show('modalNova', false));
-el('btnCancelarNova').addEventListener('click', () => show('modalNova', false));
-el('btnSalvarNova').addEventListener('click', salvarNovaOportunidade);
-
-let estadoNova = { pilar: null, perfil: null, produtos: [] };
-
-function abrirModalNova(){
-  setErr('novaErr','');
-  estadoNova = { pilar: null, perfil: null, produtos: [] };
-
-  // limpa campos
-  el('novaNome').value = '';
-  el('novaTel').value = '';
-  el('novaLoja').value = estado.usuario.loja || '';
-  el('novaNecessidade').value = '';
-  el('novaOrcado').value = '';
-  el('novaProb').value = 50;
-  el('novaProxAcao').value = '';
-  el('novaProxData').value = '';
-  el('novaObs').value = '';
-  el('novaIniciar').checked = false;
-
-  // selects
-  preencheSelect('novaOrigem',     estado.listas.origens || ['Loja física','WhatsApp','Instagram','Indicação','Base inativa','Fluxo de shopping','Médico'], 'Loja física');
-  preencheSelect('novaPrioridade', estado.listas.prioridades || ['Alta','Média','Baixa'], 'Média');
-  preencheSelect('novaEtapa',      estado.listas.sequencia, 'Primeiro contato');
-  preencheSelect('novaStatus',     estado.listas.status, 'Em aberto');
-
-  // chips
-  renderChipsNova('novaChipsPilar', estado.listas.pilares, () => estadoNova.pilar, v => estadoNova.pilar = v);
-  renderChipsNova('novaChipsPerfil', estado.listas.perfis, () => estadoNova.perfil, v => estadoNova.perfil = v);
-  renderChipMultiNova('novaChipsProdutos', estado.listas.produtos, estadoNova.produtos);
-
-  // vendedor: gerente/admin escolhe, vendedor não vê
-  if (estado.usuario.papel === 'vendedor') {
-    el('boxVendedor').style.display = 'none';
-  } else {
-    el('boxVendedor').style.display = '';
-    el('novaVendedor').innerHTML = '<option value="">— selecionar —</option><option>Carregando...</option>';
-    apiCall('listarVendedores', { usuario: estado.usuario })
-      .then(r => {
-        if (r && r.ok) {
-          el('novaVendedor').innerHTML = '<option value="">— selecionar —</option>' +
-            (r.vendedores||[]).map(v => '<option value="'+escapeHtml(v.nome)+'">'+escapeHtml(v.nome) + (v.loja?' · '+escapeHtml(v.loja):'') +'</option>').join('');
-        }
-      })
-      .catch(() => {
-        el('novaVendedor').innerHTML = '<option value="">— selecionar —</option>';
-      });
-  }
-
-  show('modalNova', true);
-  setTimeout(() => el('novaNome').focus(), 100);
-}
-
-function renderChipsNova(containerId, lista, getter, setter){
-  const atual = getter();
-  el(containerId).innerHTML = (lista||[]).map(v => {
-    const ativo = (v === atual);
-    return '<span class="chip'+(ativo?' active':'')+'" data-v="'+v.replace(/"/g,'&quot;')+'">'+v+'</span>';
-  }).join('');
-  el(containerId).querySelectorAll('.chip').forEach(ch => {
-    ch.addEventListener('click', () => { setter(ch.dataset.v); renderChipsNova(containerId, lista, getter, setter); });
-  });
-}
-function renderChipMultiNova(containerId, lista, selecionados){
-  el(containerId).innerHTML = (lista||[]).map(v => {
-    const ativo = selecionados.indexOf(v) >= 0;
-    return '<span class="chip'+(ativo?' active':'')+'" data-v="'+v.replace(/"/g,'&quot;')+'">'+v+'</span>';
-  }).join('');
-  el(containerId).querySelectorAll('.chip').forEach(ch => {
-    ch.addEventListener('click', () => {
-      const v = ch.dataset.v;
-      const i = selecionados.indexOf(v);
-      if (i >= 0) selecionados.splice(i,1); else selecionados.push(v);
-      renderChipMultiNova(containerId, lista, selecionados);
-    });
-  });
-}
-
-function salvarNovaOportunidade(){
-  setErr('novaErr','');
-  const nome = el('novaNome').value.trim();
-  if (!nome) return setErr('novaErr','Informe o nome do cliente.');
-
-  const payload = {
-    nomeCliente: nome,
-    telefone: el('novaTel').value.trim(),
-    loja: el('novaLoja').value.trim(),
-    vendedorResponsavel: el('novaVendedor').value || '',
-    origem: el('novaOrigem').value,
-    necessidadePrincipal: el('novaNecessidade').value,
-    etapaJornada: el('novaEtapa').value,
-    statusComercial: el('novaStatus').value,
-    prioridade: el('novaPrioridade').value,
-    pilarPrincipal: estadoNova.pilar || '',
-    perfilCliente: estadoNova.perfil || '',
-    produtos: estadoNova.produtos,
-    valorOrcado: el('novaOrcado').value,
-    probabilidade: el('novaProb').value,
-    proximaAcao: el('novaProxAcao').value,
-    dataProximaAcao: el('novaProxData').value,
-    observacao: el('novaObs').value,
-    iniciarAgora: el('novaIniciar').checked
-  };
-
-  el('btnSalvarNova').disabled = true;
-  el('btnSalvarNova').textContent = '... salvando';
-  apiCall('criarOportunidade', { usuario: estado.usuario, payload: payload })
-    .then(r => {
-      el('btnSalvarNova').disabled = false;
-      el('btnSalvarNova').textContent = '✓ Criar oportunidade';
-      if (!r.ok) return setErr('novaErr', r.erro || 'Erro ao criar.');
-      show('modalNova', false);
-      const abrirAteh = payload.iniciarAgora;
-      const novoId = r.idOportunidade;
-      // recarrega lista e, se solicitado, abre o atendimento direto
-      return apiCall('listarOportunidades', { usuario: estado.usuario }).then(r2 => {
-        if (!r2.ok) return;
-        estado.oportunidades = r2.oportunidades || [];
-        estado.listas = r2.listas;
-        estado.config = r2.config || estado.config;
-        popularFiltros();
-        renderStats();
-        renderTabela();
-        if (abrirAteh) {
-          const op = estado.oportunidades.find(o => o.ID_Oportunidade === novoId);
-          if (op) abrirModal(op);
-        }
-      });
-    })
-    .catch(err => {
-      el('btnSalvarNova').disabled = false;
-      el('btnSalvarNova').textContent = '✓ Criar oportunidade';
-      setErr('novaErr','Falha: ' + err.message);
-    });
-}
-
-// ============== TIMER ==============
-function iniciarTimerVisual(){
-  pararTimer();
-  estado.modal.intervalo = setInterval(() => {
-    const ms = Date.now() - estado.modal.inicioMs;
-    const min = ms / 60000;
-    setText('modalTimer', fmtMin(min));
-    const el2 = el('modalTimer');
-    el2.className = 'val';
-    if (min >= estado.config.slaVermelhoMin) el2.classList.add('vermelho');
-    else if (min >= estado.config.slaAmareloMin) el2.classList.add('amarelo');
-  }, 1000);
-}
-function pararTimer(){
-  if (estado.modal.intervalo) { clearInterval(estado.modal.intervalo); estado.modal.intervalo = null; }
 }
 
 function iniciarAtendimento(){
   if (!estado.modal.op) return;
   setErr('modalErr','');
-  el('btnIniciar').disabled = true;
-  el('btnIniciar').textContent = '... iniciando';
+  $('btnIniciar').disabled = true;
+  $('btnIniciar').textContent = '... iniciando';
+
   apiCall('iniciarAtendimento', { usuario: estado.usuario, idOportunidade: estado.modal.op.ID_Oportunidade })
     .then(r => {
-      if (!r.ok) { setErr('modalErr', r.erro || 'Erro ao iniciar.'); el('btnIniciar').disabled=false; el('btnIniciar').textContent='▶ Iniciar'; return; }
+      if (!r.ok) {
+        setErr('modalErr', r.erro || 'Erro ao iniciar.');
+        $('btnIniciar').disabled = false; $('btnIniciar').textContent = '▶ Iniciar'; return;
+      }
       estado.modal.inicioMs = Date.now();
-      el('btnIniciar').textContent = '● Em atendimento';
+      $('btnIniciar').textContent = '● Em atendimento';
       iniciarTimerVisual();
     })
-    .catch(err => { setErr('modalErr','Falha: '+err.message); el('btnIniciar').disabled=false; el('btnIniciar').textContent='▶ Iniciar'; });
+    .catch(err => {
+      setErr('modalErr','Falha: '+err.message);
+      $('btnIniciar').disabled = false; $('btnIniciar').textContent = '▶ Iniciar';
+    });
 }
 
 function finalizarAtendimento(){
@@ -1244,52 +629,156 @@ function finalizarAtendimento(){
   setErr('modalErr','');
   const payload = {
     idOportunidade: estado.modal.op.ID_Oportunidade,
-    descritivo: el('inpDescritivo').value,
+    descritivo: $('inpDescritivo').value,
     pilarPrincipal: estado.modal.pilar || '',
     perfilCliente: estado.modal.perfil || '',
     produtos: estado.modal.produtos,
-    etapaJornada: el('selEtapa').value,
-    statusComercial: el('selStatus').value,
-    proximaAcao: el('inpProxAcao').value,
-    dataProximaAcao: el('inpProxData').value,
-    valorOrcado: el('inpOrcado').value,
-    valorVendido: el('inpVendido').value,
-    observacao: el('inpDescritivo').value
+    etapaJornada: $('selEtapa').value,
+    statusComercial: $('selStatus').value,
+    proximaAcao: $('inpProxAcao').value,
+    dataProximaAcao: $('inpProxData').value,
+    valorOrcado: $('inpOrcado').value,
+    valorVendido: $('inpVendido').value,
+    observacao: $('inpDescritivo').value
   };
-  el('btnFinalizar').disabled = true;
-  el('btnFinalizar').textContent = '... salvando';
+  $('btnFinalizar').disabled = true;
+  $('btnFinalizar').textContent = '... salvando';
+
   apiCall('finalizarAtendimento', { usuario: estado.usuario, payload: payload })
     .then(r => {
-      el('btnFinalizar').disabled = false;
-      el('btnFinalizar').textContent = '✓ Finalizar atendimento';
+      $('btnFinalizar').disabled = false;
+      $('btnFinalizar').textContent = '✓ Finalizar atendimento';
       if (!r.ok) return setErr('modalErr', r.erro || 'Erro ao salvar.');
       fecharModal();
       carregarOportunidades();
     })
     .catch(err => {
-      el('btnFinalizar').disabled = false;
-      el('btnFinalizar').textContent = '✓ Finalizar atendimento';
+      $('btnFinalizar').disabled = false;
+      $('btnFinalizar').textContent = '✓ Finalizar atendimento';
       setErr('modalErr','Falha: '+err.message);
     });
 }
 
-// ============== PAINEL DE TEMPOS (gerente) ==============
-el('btnRefreshTempos').addEventListener('click', carregarTempos);
+// ===================================================================
+// TIMER VISUAL
+// ===================================================================
+function iniciarTimerVisual(){
+  pararTimer();
+  estado.modal.intervalo = setInterval(() => {
+    if (!estado.modal.inicioMs) return;
+    const ms = Date.now() - estado.modal.inicioMs;
+    const min = Math.floor(ms/60000);
+    const seg = Math.floor((ms%60000)/1000);
+    $('timerBox').textContent = String(min).padStart(2,'0')+':'+String(seg).padStart(2,'0');
+    let cor = 'verde';
+    if (min >= estado.config.slaVermelhoMin) cor = 'vermelho';
+    else if (min >= estado.config.slaAmareloMin) cor = 'amarelo';
+    $('timerBox').className = 'timer '+cor;
+  }, 1000);
+}
+function pararTimer(){
+  if (estado.modal.intervalo) { clearInterval(estado.modal.intervalo); estado.modal.intervalo = null; }
+}
+
+// ===================================================================
+// NOVA OPORTUNIDADE
+// ===================================================================
+$('btnNova').addEventListener('click', abrirModalNova);
+$('btnFecharNova').addEventListener('click', () => showModal('modalNova', false));
+$('btnSalvarNova').addEventListener('click', salvarNova);
+
+function abrirModalNova(){
+  setErr('novaErr','');
+  $('novaNome').value = '';
+  $('novaTelefone').value = '';
+  $('novaProduto').value = '';
+  $('novaNecessidade').value = '';
+  $('novaIniciar').checked = true;
+
+  if (estado.usuario.papel === 'vendedor') {
+    $('boxVendedor').style.display = 'none';
+  } else {
+    $('boxVendedor').style.display = '';
+    $('novaVendedor').innerHTML = '<option value="">— carregando —</option>';
+    apiCall('listarVendedores', { usuario: estado.usuario })
+      .then(r => {
+        if (r && r.ok) {
+          $('novaVendedor').innerHTML = '<option value="">— selecionar —</option>' +
+            (r.vendedores||[]).map(v => '<option value="'+escapeHtml(v.nome)+'">'+escapeHtml(v.nome)+(v.loja?' · '+escapeHtml(v.loja):'')+'</option>').join('');
+        }
+      })
+      .catch(() => { $('novaVendedor').innerHTML = '<option value="">— selecionar —</option>'; });
+  }
+  showModal('modalNova', true);
+  setTimeout(() => $('novaNome').focus(), 100);
+}
+
+function salvarNova(){
+  setErr('novaErr','');
+  const nome = $('novaNome').value.trim();
+  if (!nome) return setErr('novaErr','Informe o nome do cliente.');
+
+  const payload = {
+    nomeCliente: nome,
+    telefone: $('novaTelefone').value.trim(),
+    vendedor: $('novaVendedor').value || '',
+    origem: $('novaOrigem').value,
+    produtoInteresse: $('novaProduto').value.trim(),
+    necessidadePrincipal: $('novaNecessidade').value.trim(),
+    iniciarAgora: $('novaIniciar').checked
+  };
+  $('btnSalvarNova').disabled = true;
+  $('btnSalvarNova').textContent = '... salvando';
+
+  apiCall('criarOportunidade', { usuario: estado.usuario, payload: payload })
+    .then(r => {
+      $('btnSalvarNova').disabled = false;
+      $('btnSalvarNova').textContent = '✓ Criar oportunidade';
+      if (!r.ok) return setErr('novaErr', r.erro || 'Erro ao criar.');
+      showModal('modalNova', false);
+      const abrir = payload.iniciarAgora;
+      const novoId = r.idOportunidade;
+      return apiCall('listarOportunidades', { usuario: estado.usuario }).then(r2 => {
+        if (!r2.ok) return;
+        estado.oportunidades = r2.oportunidades || [];
+        estado.listas = r2.listas;
+        renderStats();
+        renderTabela();
+        if (abrir) {
+          const op = estado.oportunidades.find(o => o.ID_Oportunidade === novoId);
+          if (op) abrirModal(op);
+        }
+      });
+    })
+    .catch(err => {
+      $('btnSalvarNova').disabled = false;
+      $('btnSalvarNova').textContent = '✓ Criar oportunidade';
+      setErr('novaErr','Falha: '+err.message);
+    });
+}
+
+// ===================================================================
+// PAINEL DE TEMPOS (gerente)
+// ===================================================================
+$('btnRefreshTempos').addEventListener('click', carregarTempos);
+$('filtroVendedor').addEventListener('input', () => {
+  clearTimeout(window.__t);
+  window.__t = setTimeout(carregarTempos, 350);
+});
+
 function carregarTempos(){
   setHTML('tblTempos','<tr><td colspan="8"><div class="loader"></div></td></tr>');
   setHTML('resumoTempos','');
-  apiCall('painelTempos', { usuario: estado.usuario, filtros: { vendedor: el('filtroVendedor').value.trim() } })
+  apiCall('painelTempos', { usuario: estado.usuario, filtros: { vendedor: $('filtroVendedor').value.trim() } })
     .then(r => {
-      if (!r.ok) { setHTML('tblTempos','<tr><td colspan="8" class="empty">'+(r.erro||'Erro')+'</td></tr>'); return; }
+      if (!r.ok) { setHTML('tblTempos','<tr><td colspan="8" class="empty">'+escapeHtml(r.erro||'Erro')+'</td></tr>'); return; }
       setHTML('resumoTempos', (r.resumoVendedores||[]).map(v =>
         '<div class="stat"><div class="lbl">'+escapeHtml(v.vendedor)+'</div>'+
           '<div class="val">'+v.qtd+'</div>'+
-          '<div style="font-size:11px;color:var(--muted);margin-top:4px;">'+
-            'Média '+v.mediaMin+' min · '+
+          '<div style="font-size:11px;color:var(--muted);margin-top:4px;">média '+v.mediaMin+'min · '+
             '<span style="color:var(--ok)">●'+v.verde+'</span> '+
             '<span style="color:var(--warn)">●'+v.amarelo+'</span> '+
-            '<span style="color:var(--alert)">●'+v.vermelho+'</span>'+
-          '</div>'+
+            '<span style="color:var(--alert)">●'+v.vermelho+'</span></div>'+
         '</div>'
       ).join(''));
       const lista = r.atendimentos || [];
@@ -1297,233 +786,105 @@ function carregarTempos(){
       setHTML('tblTempos', lista.map(a =>
         '<tr>'+
           '<td>'+semaforoDot(a.semaforo)+'</td>'+
-          '<td>'+(a.Vendedor||'—')+'</td>'+
-          '<td>'+(a.ID_Oportunidade||'—')+'</td>'+
-          '<td>'+(a.Inicio||'—')+'</td>'+
-          '<td>'+(a.Fim||'—')+'</td>'+
-          '<td>'+(a.Duracao_min||0)+'</td>'+
-          '<td>'+(a.Etapa_Jornada||'—')+'</td>'+
-          '<td>'+(a.Status_Comercial||'—')+'</td>'+
+          '<td>'+escapeHtml(a.Vendedor||'—')+'</td>'+
+          '<td><small>'+escapeHtml(a.ID_Oportunidade||'—')+'</small></td>'+
+          '<td>'+escapeHtml(a.Inicio||'—')+'</td>'+
+          '<td>'+escapeHtml(a.Fim||'—')+'</td>'+
+          '<td>'+a.Duracao_min+'</td>'+
+          '<td>'+escapeHtml(a.Etapa_Jornada||'—')+'</td>'+
+          '<td>'+escapeHtml(a.Status_Comercial||'—')+'</td>'+
         '</tr>'
       ).join(''));
     })
-    .catch(err => setHTML('tblTempos','<tr><td colspan="8" class="empty">Falha: '+err.message+'</td></tr>'));
+    .catch(err => setHTML('tblTempos','<tr><td colspan="8" class="empty">Falha: '+escapeHtml(err.message)+'</td></tr>'));
 }
-el('filtroVendedor').addEventListener('input', () => {
-  // debounce simples
-  clearTimeout(window.__t);
-  window.__t = setTimeout(carregarTempos, 350);
-});
 
-// ============== DASHBOARD EXECUTIVO ==============
-const CORES_PILARES = {
-  'Saúde visual': '#38bdf8',
-  'Estilo / imagem': '#f472b6',
-  'Técnico': '#a78bfa',
-  'Confiança / relacionamento': '#34d399',
-  'Preço / condição': '#fbbf24'
-};
-const PALETA = ['#38bdf8','#f472b6','#a78bfa','#34d399','#fbbf24','#fb7185','#60a5fa','#a3e635','#fb923c','#94a3b8'];
-
-let chartsDash = {}; // referências dos Chart.js
-
-el('btnRefreshDash').addEventListener('click', carregarDashboard);
-['dashFiltroLoja','dashFiltroVendedor','dashFiltroPeriodo'].forEach(id => {
-  el(id).addEventListener('change', carregarDashboard);
-});
+// ===================================================================
+// DASHBOARD EXECUTIVO
+// ===================================================================
+$('btnRefreshDash').addEventListener('click', carregarDashboard);
+$('dashFiltroLoja').addEventListener('change', carregarDashboard);
+$('dashFiltroVendedor').addEventListener('change', carregarDashboard);
+$('dashFiltroPeriodo').addEventListener('change', carregarDashboard);
 
 function carregarDashboard(){
-  // limpa
-  Object.values(chartsDash).forEach(c => { try { c.destroy(); } catch(e){} });
-  chartsDash = {};
-  setHTML('dashKpis', '<div class="loader"></div>');
-  setHTML('dashAlertas', '');
-  setHTML('dashTblLoja', '<tr><td colspan="9" class="empty">Carregando...</td></tr>');
-  setHTML('dashTblVendedor', '<tr><td colspan="8" class="empty">Carregando...</td></tr>');
-  setHTML('dashTblSla', '<tr><td colspan="6" class="empty">Carregando...</td></tr>');
-
+  setHTML('dashKpis','<div class="loader"></div>');
+  setHTML('dashConteudo','');
+  setHTML('dashAlertas','');
   const filtros = {
-    loja: el('dashFiltroLoja').value || '',
-    vendedor: el('dashFiltroVendedor').value || '',
-    diasRecentes: el('dashFiltroPeriodo').value || ''
+    loja: $('dashFiltroLoja').value || '',
+    vendedor: $('dashFiltroVendedor').value || '',
+    diasRecentes: $('dashFiltroPeriodo').value || ''
   };
-
   apiCall('dashboardExecutivo', { usuario: estado.usuario, filtros: filtros })
     .then(r => {
-      if (!r.ok) { setHTML('dashKpis', '<div class="alert">'+(r.erro||'Erro')+'</div>'); return; }
+      if (!r.ok) { setHTML('dashKpis','<div class="alert">'+escapeHtml(r.erro||'Erro')+'</div>'); return; }
       renderDashboard(r);
     })
-    .catch(err => {
-      setHTML('dashKpis', '<div class="alert">Falha: '+err.message+'</div>');
-    });
+    .catch(err => setHTML('dashKpis','<div class="alert">Falha: '+escapeHtml(err.message)+'</div>'));
 }
 
 function renderDashboard(r){
-  setText('dashGeradoEm', 'gerado em ' + (r.geradoEm || ''));
+  setText('dashGeradoEm','gerado em ' + (r.geradoEm||''));
 
-  // popula selects de filtro (uma vez)
-  if (el('dashFiltroLoja').options.length <= 1) {
-    el('dashFiltroLoja').innerHTML = '<option value="">Todas as lojas</option>' +
+  // popula filtros uma vez
+  if ($('dashFiltroLoja').options.length <= 1) {
+    $('dashFiltroLoja').innerHTML = '<option value="">Todas as lojas</option>' +
       (r.filtrosDisponiveis.lojas||[]).map(l => '<option>'+escapeHtml(l)+'</option>').join('');
   }
-  if (el('dashFiltroVendedor').options.length <= 1) {
-    el('dashFiltroVendedor').innerHTML = '<option value="">Todos os vendedores</option>' +
+  if ($('dashFiltroVendedor').options.length <= 1) {
+    $('dashFiltroVendedor').innerHTML = '<option value="">Todos os vendedores</option>' +
       (r.filtrosDisponiveis.vendedores||[]).map(v => '<option>'+escapeHtml(v)+'</option>').join('');
+  }
+
+  // alertas
+  if (r.alertas && r.alertas.length) {
+    setHTML('dashAlertas', r.alertas.map(a => '<div class="alert">'+escapeHtml(a.msg)+'</div>').join(''));
   }
 
   // KPIs
   const k = r.kpis;
   setHTML('dashKpis',
-    statBox('Oportunidades', k.total) +
-    statBox('Em aberto', k.emAberto) +
-    statBox('Convertidas', k.convertidos, 'ok') +
-    statBox('Perdidas', k.perdidos, k.perdidos>0?'alert':'') +
-    statBox('Taxa conversão', k.taxaConversao + '%') +
-    statBox('Valor vendido', 'R$ ' + fmtBR(k.valorVendidoTotal), 'ok') +
-    statBox('Valor orçado', 'R$ ' + fmtBR(k.valorOrcadoTotal)) +
-    statBox('Ticket médio', 'R$ ' + fmtBR(k.ticketMedio)) +
-    statBox('Atendimentos', k.qtdAtendimentos)
+    kpiCard('Total', k.total) +
+    kpiCard('Em aberto', k.emAberto) +
+    kpiCard('Convertidas', k.convertidas) +
+    kpiCard('Perdidas', k.perdidas) +
+    kpiCard('Conversão', k.conversao + '%') +
+    kpiCard('Faturamento', fmtMoney(k.faturamento)) +
+    kpiCard('Ticket médio', fmtMoney(k.ticketMedio)) +
+    kpiCard('Orçado', fmtMoney(k.orcado))
   );
 
-  // Alertas
-  if (r.alertas && r.alertas.length) {
-    setHTML('dashAlertas', '<div style="margin-top:8px;">' + r.alertas.map(a =>
-      '<div class="alerta '+a.tipo+'"><span class="ico">⚠</span>'+ escapeHtml(a.mensagem) +'</div>'
-    ).join('') + '</div>');
-  } else {
-    setHTML('dashAlertas', '');
-  }
+  // tabelas
+  let html = '';
+  html += secaoAgrupada('Por loja', r.porLoja);
+  html += secaoAgrupada('Por pilar', r.porPilar);
+  html += secaoAgrupada('Por etapa', r.porEtapa);
+  html += secaoAgrupada('Por origem', r.porOrigem);
 
-  // Gráficos
-  desenharGrafico('chartLoja', 'bar', (r.porLoja||[]).map(g=>g.label), (r.porLoja||[]).map(g=>g.valorVendido), 'Valor vendido (R$)');
-  desenharPie('chartPilar', (r.porPilar||[]), CORES_PILARES);
-  desenharPie('chartPerfil', (r.porPerfil||[]));
-  desenharGrafico('chartEtapa', 'bar', (r.porEtapa||[]).map(g=>g.label), (r.porEtapa||[]).map(g=>g.qtd), 'Oportunidades', true);
-  desenharPie('chartOrigem', (r.porOrigem||[]));
-  desenharGrafico('chartProduto', 'bar', (r.porProduto||[]).slice(0,10).map(g=>g.label), (r.porProduto||[]).slice(0,10).map(g=>g.qtd), 'Aparições', true);
-
-  // Tabela por loja
-  setHTML('dashTblLoja', (r.porLoja||[]).map(g =>
-    '<tr>'+
-      '<td><b>'+escapeHtml(g.label)+'</b></td>'+
-      '<td>'+g.total+'</td>'+
-      '<td>'+(g.emAberto||0)+'</td>'+
-      '<td style="color:var(--ok)">'+(g.convertidos||0)+'</td>'+
-      '<td style="color:var(--alert)">'+(g.perdidos||0)+'</td>'+
-      '<td>'+taxaPill(g.taxaConversao)+'</td>'+
-      '<td>R$ '+fmtBR(g.valorOrcado||0)+'</td>'+
-      '<td>R$ '+fmtBR(g.valorVendido||0)+'</td>'+
-      '<td>R$ '+fmtBR(g.ticketMedio||0)+'</td>'+
-    '</tr>'
-  ).join('') || '<tr><td colspan="9" class="empty">Sem dados.</td></tr>');
-
-  // Tabela por vendedor
-  setHTML('dashTblVendedor', (r.porVendedor||[]).map(g =>
-    '<tr>'+
-      '<td><b>'+escapeHtml(g.label)+'</b></td>'+
-      '<td>'+g.total+'</td>'+
-      '<td>'+(g.emAberto||0)+'</td>'+
-      '<td style="color:var(--ok)">'+(g.convertidos||0)+'</td>'+
-      '<td style="color:var(--alert)">'+(g.perdidos||0)+'</td>'+
-      '<td>'+taxaPill(g.taxaConversao)+'</td>'+
-      '<td>R$ '+fmtBR(g.valorVendido||0)+'</td>'+
-      '<td>R$ '+fmtBR(g.ticketMedio||0)+'</td>'+
-    '</tr>'
-  ).join('') || '<tr><td colspan="8" class="empty">Sem dados.</td></tr>');
-
-  // Tabela SLA
-  setHTML('dashTblSla', (r.slaPorVendedor||[]).map(g =>
-    '<tr>'+
-      '<td><b>'+escapeHtml(g.vendedor)+'</b></td>'+
-      '<td>'+g.qtd+'</td>'+
-      '<td>'+g.mediaMin+'</td>'+
-      '<td>'+g.verde+'</td>'+
-      '<td>'+g.amarelo+'</td>'+
-      '<td>'+g.vermelho+'</td>'+
-    '</tr>'
-  ).join('') || '<tr><td colspan="6" class="empty">Nenhum atendimento registrado ainda.</td></tr>');
-}
-
-function taxaPill(t){
-  if (t === null || t === undefined) return '—';
-  const cls = t >= 35 ? 'bom' : (t >= 20 ? 'medio' : 'ruim');
-  return '<span class="dash-table-tax '+cls+'">'+t+'%</span>';
-}
-function fmtBR(n){
-  return Number(n||0).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-}
-
-function desenharGrafico(canvasId, tipo, labels, dados, label, horizontal){
-  const ctx = el(canvasId).getContext('2d');
-  if (chartsDash[canvasId]) chartsDash[canvasId].destroy();
-  chartsDash[canvasId] = new Chart(ctx, {
-    type: tipo,
-    data: {
-      labels: labels,
-      datasets: [{
-        label: label,
-        data: dados,
-        backgroundColor: labels.map((_,i) => PALETA[i % PALETA.length]),
-        borderColor: 'rgba(255,255,255,0.05)',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      indexAxis: horizontal ? 'y' : 'x',
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: ctx => (label||'') + ': ' + (typeof ctx.parsed === 'number'
-              ? ctx.parsed
-              : (horizontal ? ctx.parsed.x : ctx.parsed.y))
-          }
-        }
-      },
-      scales: {
-        x: { ticks: { color:'#94a3b8' }, grid: { color:'#334155' } },
-        y: { ticks: { color:'#94a3b8' }, grid: { color:'#334155' } }
-      }
-    }
+  html += '<h3 style="margin:24px 0 10px;font-size:14px;color:var(--muted)">Por vendedor</h3>';
+  html += '<table><thead><tr><th>Vendedor</th><th>Qtd</th><th>Convertidas</th><th>Faturamento</th></tr></thead><tbody>';
+  (r.tabVendedores||[]).forEach(v => {
+    html += '<tr><td>'+escapeHtml(v.vendedor)+'</td><td>'+v.qtd+'</td><td>'+v.convertido+'</td><td>'+fmtMoney(v.faturamento)+'</td></tr>';
   });
+  html += '</tbody></table>';
+  setHTML('dashConteudo', html);
 }
 
-function desenharPie(canvasId, dados, mapaCor){
-  const ctx = el(canvasId).getContext('2d');
-  if (chartsDash[canvasId]) chartsDash[canvasId].destroy();
-  const labels = dados.map(d => d.label);
-  const valores = dados.map(d => d.qtd);
-  const cores = labels.map((l,i) => (mapaCor && mapaCor[l]) || PALETA[i % PALETA.length]);
-  chartsDash[canvasId] = new Chart(ctx, {
-    type: 'doughnut',
-    data: { labels, datasets: [{ data: valores, backgroundColor: cores, borderColor:'#1e293b', borderWidth:2 }] },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { position:'bottom', labels: { color:'#94a3b8', font:{size:11}, boxWidth:10 } }
-      }
-    }
-  });
+function kpiCard(lbl, val){
+  return '<div class="stat"><div class="lbl">'+escapeHtml(lbl)+'</div><div class="val">'+escapeHtml(String(val))+'</div></div>';
 }
 
-// ============== ATUALIZAÇÃO PERIÓDICA DOS SEMÁFOROS ==============
-setInterval(() => {
-  // se houver oportunidade ativa, recalcula o ponto e o tempo
-  let mudou = false;
-  estado.oportunidades.forEach(o => {
-    if (o.atendimentoAtivo && o.Inicio_Atendimento) {
-      // valores Inicio_Atendimento estão formatados em string BR → não tentamos parsear aqui;
-      // o servidor já forneceu tempoAtendimentoMin no carregamento e o frontend incrementa
-      // visualmente. Para manter simples, recarregamos a cada 30s se houver ativos.
-    }
+function secaoAgrupada(titulo, lista){
+  if (!lista || !lista.length) return '';
+  let h = '<h3 style="margin:24px 0 10px;font-size:14px;color:var(--muted)">'+escapeHtml(titulo)+'</h3>';
+  h += '<table><thead><tr><th>'+escapeHtml(titulo.replace(/^Por /,''))+'</th><th>Qtd</th><th>Faturamento</th></tr></thead><tbody>';
+  lista.forEach(x => {
+    h += '<tr><td>'+escapeHtml(x.label)+'</td><td>'+x.qtd+'</td><td>'+fmtMoney(x.faturamento)+'</td></tr>';
   });
-  const temAtivo = estado.oportunidades.some(o => o.atendimentoAtivo);
-  if (temAtivo) carregarOportunidades();
-}, 30000);
-
+  h += '</tbody></table>';
+  return h;
+}
 </script>
 </body>
 </html>
