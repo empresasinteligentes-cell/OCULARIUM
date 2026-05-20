@@ -272,37 +272,34 @@ td .row-btn:hover{background:var(--brand);color:white}
 const API_URL = 'https://script.google.com/macros/s/AKfycbwgFdX8yep42V_8au6EiSAhCBHPgcApGQ18QOPgGSHF5fIdVkk8bi5114bHkM2qK38JHQ/exec';
 
 // ===================================================================
-// JSONP — bypass de CORS para conversar com Apps Script
+// COMUNICAÇÃO — fetch POST com text/plain (mesmo padrão do app SALOME)
+// O text/plain evita o preflight CORS que o Apps Script bloqueia.
+// Inclui timeout de 12s e 1 retry automático em falha de rede.
 // ===================================================================
-let __jsonpSeq = 0;
-function apiCall(action, data, timeoutMs) {
-  timeoutMs = timeoutMs || 20000;
-  return new Promise((resolve, reject) => {
-    const cbName = '__cb' + (++__jsonpSeq) + '_' + Date.now();
-    const tag = document.createElement('script');
-    let done = false;
+function apiCall(fn, arg, _tentativa) {
+  _tentativa = _tentativa || 1;
+  const controller = new AbortController();
+  const tmo = setTimeout(() => controller.abort(), 12000);
 
-    const cleanup = () => {
-      try { delete window[cbName]; } catch(e) { window[cbName] = undefined; }
-      if (tag.parentNode) tag.parentNode.removeChild(tag);
-    };
-    const timer = setTimeout(() => {
-      if (done) return; done = true; cleanup();
-      reject(new Error('Tempo de resposta esgotado (' + (timeoutMs/1000) + 's). Verifique se a URL da API está pública.'));
-    }, timeoutMs);
-
-    window[cbName] = (resp) => {
-      if (done) return; done = true; clearTimeout(timer); cleanup();
-      resolve(resp);
-    };
-    tag.onerror = () => {
-      if (done) return; done = true; clearTimeout(timer); cleanup();
-      reject(new Error('Falha ao conectar à API. A URL do Apps Script pode estar incorreta ou sem permissão pública.'));
-    };
-
-    const payload = encodeURIComponent(JSON.stringify(data || {}));
-    tag.src = API_URL + '?action=' + encodeURIComponent(action) + '&data=' + payload + '&callback=' + cbName;
-    document.body.appendChild(tag);
+  return fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ fn: fn, arg: (arg !== undefined ? arg : null) }),
+    signal: controller.signal,
+    redirect: 'follow'
+  })
+  .then(r => { clearTimeout(tmo); return r.json(); })
+  .then(r => {
+    if (r && r.__erro) throw new Error(r.__erro);
+    return r;
+  })
+  .catch(e => {
+    clearTimeout(tmo);
+    const ehErroRede = e.name === 'AbortError' || /fetch|network|Failed/i.test(e.message || '');
+    if (_tentativa < 2 && ehErroRede) {
+      return new Promise(res => setTimeout(res, 1500)).then(() => apiCall(fn, arg, 2));
+    }
+    throw e;
   });
 }
 
@@ -346,7 +343,7 @@ function semaforoDot(s){
 // ===================================================================
 function testarConexao(){
   setText('apiStatus','testando conexão...');
-  apiCall('ping', {}, 8000)
+  apiCall('ping', {})
     .then(r => {
       if (r && r.ok) setText('apiStatus', '✓ conectado à API');
       else setText('apiStatus', '⚠ API respondeu mas com erro: ' + (r && r.erro));
