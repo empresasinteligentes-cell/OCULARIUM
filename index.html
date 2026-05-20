@@ -286,9 +286,7 @@ function apiCall(fn, arg, _tentativa) {
 
   const req = fetch(API_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify({ fn: fn, arg: (arg !== undefined ? arg : null) }),
-    redirect: 'follow'
+    body: JSON.stringify({ fn: fn, arg: (arg !== undefined ? arg : null) })
   })
   .then(r => r.json())
   .then(r => {
