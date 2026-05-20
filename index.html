@@ -328,6 +328,74 @@ td .row-btn:hover{background:var(--brand);color:var(--on-brand)}
 
 .hidden{display:none !important}
 
+/* ============================================================
+   PAINEL DE INTELIGÊNCIA — Ações do dia + Funil + Temperatura
+   ============================================================ */
+.intel-wrap{display:grid;grid-template-columns:1fr 360px;gap:18px;margin-top:18px}
+@media(max-width:980px){.intel-wrap{grid-template-columns:1fr}}
+
+/* Cards de ação inteligente */
+.intel-actions{display:block}
+.intel-primary{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.intel-secondary-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3);margin:14px 0 8px}
+.intel-secondary{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:560px){.intel-primary,.intel-secondary{grid-template-columns:1fr}}
+.action-card-sm{padding:11px 14px}
+.action-card-sm .ac-icon{font-size:16px;margin-bottom:4px}
+.action-card-sm .ac-count{font-size:22px}
+.action-card-sm .ac-title{font-size:12px;margin-top:3px}
+.action-card-sm .ac-cta{margin-top:6px;font-size:10px}
+.action-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:16px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden;
+  box-shadow:var(--shadow-sm);
+}
+.action-card:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--brand)}
+.action-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--ac-color,var(--brand))}
+.action-card .ac-icon{font-size:22px;margin-bottom:8px;display:block}
+.action-card .ac-count{font-size:30px;font-weight:800;letter-spacing:-1px;line-height:1;color:var(--ac-color,var(--brand))}
+.action-card .ac-title{font-size:13px;font-weight:700;margin-top:6px;color:var(--text)}
+.action-card .ac-desc{font-size:11.5px;color:var(--text-3);margin-top:3px;line-height:1.4}
+.action-card .ac-cta{font-size:11px;font-weight:700;color:var(--brand);margin-top:10px;display:flex;align-items:center;gap:4px}
+
+/* Temperatura */
+.temp-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:middle}
+.temp-quente .temp-dot{background:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.18)}
+.temp-morno  .temp-dot{background:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,.18)}
+.temp-frio   .temp-dot{background:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.18)}
+tr.temp-quente{background:rgba(239,68,68,.045)}
+tr.temp-morno{background:rgba(245,158,11,.04)}
+.temp-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.temp-quente .temp-label{color:#ef4444}
+.temp-morno  .temp-label{color:#f59e0b}
+.temp-frio   .temp-label{color:#3b82f6}
+
+/* Funil */
+.funnel-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--shadow-sm)}
+.funnel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.funnel-head h3{margin:0;font-size:14px;font-weight:700}
+.funnel-toggle{display:flex;background:var(--surface-2);border-radius:8px;padding:2px;gap:2px}
+.funnel-toggle button{
+  border:0;background:transparent;color:var(--text-2);font-size:11px;font-weight:700;
+  padding:5px 11px;border-radius:6px;cursor:pointer;font-family:inherit;transition:all .15s;
+}
+.funnel-toggle button.active{background:var(--brand);color:var(--on-brand)}
+.funnel-stage{margin-bottom:8px}
+.funnel-bar{
+  height:46px;border-radius:8px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;color:#fff;font-weight:700;transition:width .5s ease;position:relative;
+  margin:0 auto;
+}
+.funnel-bar .fb-label{font-size:12px;display:flex;align-items:center;gap:8px;z-index:1}
+.funnel-bar .fb-val{font-size:16px;font-weight:800;z-index:1}
+.funnel-stage .fb-sub{font-size:10.5px;color:var(--text-3);text-align:center;margin-top:3px}
+.funnel-conv{
+  margin-top:14px;padding-top:14px;border-top:1px solid var(--border);
+  text-align:center;
+}
+.funnel-conv .fc-val{font-size:28px;font-weight:800;color:var(--ok)}
+.funnel-conv .fc-lbl{font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+
 /* RESPONSIVO */
 @media(max-width:600px){
   .modal .row{grid-template-columns:1fr}
@@ -351,6 +419,101 @@ td .row-btn:hover{background:var(--brand);color:var(--on-brand)}
 /* logo pequena na topbar */
 .topbar-logo{height:30px;width:auto}
 
+/* ============================================================
+   KANBAN
+   ============================================================ */
+.view-toggle{display:flex;background:var(--surface-2);border-radius:9px;padding:3px;gap:2px}
+.view-toggle button{
+  border:0;background:transparent;color:var(--text-2);font-size:13px;font-weight:600;
+  padding:7px 14px;border-radius:7px;cursor:pointer;font-family:inherit;transition:all .15s;
+}
+.view-toggle button.active{background:var(--brand);color:var(--on-brand)}
+
+.kanban-toolbar{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.kb-hint{font-size:12px;color:var(--text-3)}
+.kb-expand-toggle{font-size:12px;color:var(--text-2);display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:600}
+.kb-expand-toggle input{width:auto}
+.kb-saving{font-size:12px;font-weight:700;margin-left:auto}
+.kb-saving.saving{color:var(--warn)}
+.kb-saving.ok{color:var(--ok)}
+.kb-saving.err{color:var(--alert)}
+
+.kanban-board{
+  display:grid;grid-auto-flow:column;grid-auto-columns:minmax(200px,1fr);
+  gap:12px;overflow-x:auto;padding-bottom:10px;
+}
+.kanban-col{
+  background:var(--surface-2);border:1px solid var(--border);border-radius:12px;
+  display:flex;flex-direction:column;min-height:120px;
+}
+.kanban-col-head{
+  padding:11px 13px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:12px;font-weight:700;color:var(--text);position:sticky;top:0;
+  border-radius:12px 12px 0 0;
+}
+.kanban-col-head .kc-count{
+  background:var(--surface-3);color:var(--text-2);border-radius:99px;
+  font-size:11px;font-weight:700;padding:1px 8px;min-width:22px;text-align:center;
+}
+.kanban-col-head .kc-add{
+  width:22px;height:22px;border-radius:6px;border:1px solid var(--border);
+  background:var(--surface);color:var(--text-2);cursor:pointer;font-size:15px;
+  font-weight:700;line-height:1;display:flex;align-items:center;justify-content:center;
+  padding:0;transition:all .15s;
+}
+.kanban-col-head .kc-add:hover{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
+.kanban-col-head .kc-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:7px}
+.kanban-col-body{
+  padding:10px;display:flex;flex-direction:column;gap:8px;flex:1;
+  min-height:60px;transition:background .15s;
+}
+.kanban-col-body.drag-over{background:var(--brand-soft);outline:2px dashed var(--brand);outline-offset:-6px;border-radius:8px}
+
+/* CARD */
+.kb-card{
+  background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--kc-temp,var(--border));
+  border-radius:9px;padding:10px 11px;cursor:grab;transition:all .12s;position:relative;
+  box-shadow:var(--shadow-sm);
+}
+.kb-card:hover{transform:translateY(-1px);box-shadow:var(--shadow);border-color:var(--brand)}
+.kb-card:active{cursor:grabbing}
+.kb-card.dragging{opacity:.45;transform:rotate(1.5deg)}
+.kb-card .kc-name{font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px}
+.kb-card .kc-temp-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.kb-card .kc-meta{font-size:11px;color:var(--text-3);margin-top:3px}
+.kb-card .kc-val{font-size:12px;font-weight:700;color:var(--brand);margin-top:5px}
+.kb-card .kc-pilar{display:inline-block;font-size:10px;padding:1px 7px;border-radius:5px;background:var(--surface-2);border:1px solid var(--border);color:var(--text-2);margin-top:6px}
+
+/* hover detalhes (modo compacto) */
+.kb-card .kc-expand{display:none}
+.kb-card.expanded .kc-expand{display:block}
+/* tooltip no hover (modo compacto APENAS) */
+.kb-card.expanded .kc-hover{display:none !important}
+.kb-card:not(.expanded) .kc-hover{
+  display:none;position:absolute;left:0;top:100%;z-index:30;margin-top:6px;
+  background:var(--surface);border:1px solid var(--border);border-radius:9px;
+  padding:10px 12px;box-shadow:var(--shadow);width:max(100%,220px);font-size:11.5px;color:var(--text-2);
+}
+.kb-card:not(.expanded):hover .kc-hover{display:block}
+.kb-card .kc-hover b{color:var(--text)}
+
+/* faixa de planejamento */
+.kanban-plan{margin-top:14px;background:var(--surface-2);border:1px dashed var(--border-strong);border-radius:12px;padding:12px}
+.kp-head{font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px}
+.kp-head small{color:var(--text-3);font-weight:400}
+.kb-plan-body{flex-direction:row;flex-wrap:wrap;min-height:70px}
+.kb-plan-body .kb-card{width:200px}
+
+/* logo pequena fim */
+
+/* ---------- DASHBOARD GRÁFICOS ---------- */
+.dash-graficos{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:8px 0 24px}
+@media(max-width:760px){.dash-graficos{grid-template-columns:1fr}}
+.thermo-bar{display:flex;height:24px;border-radius:8px;overflow:hidden;background:var(--surface-2);margin-top:6px}
+.thermo-legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--text-2)}
+.thermo-legend .tl-dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:middle}
+.thermo-legend b{color:var(--text)}
 </style>
 </head>
 <body>
@@ -409,6 +572,29 @@ td .row-btn:hover{background:var(--brand);color:var(--on-brand)}
         <div class="stat"><div class="lbl">Faturamento</div><div class="val" id="kpiFat">—</div></div>
       </div>
 
+      <!-- PAINEL DE INTELIGÊNCIA -->
+      <div class="intel-wrap">
+        <!-- Ações inteligentes do dia -->
+        <div>
+          <div class="section-title" style="margin-bottom:12px;border:none;padding:0">
+            <span class="num">⚡</span> Ações inteligentes do dia
+          </div>
+          <div class="intel-actions" id="intelActions"></div>
+        </div>
+
+        <!-- Funil -->
+        <div class="funnel-card">
+          <div class="funnel-head">
+            <h3>Funil de vendas</h3>
+            <div class="funnel-toggle" id="funnelToggle">
+              <button data-mode="qtd" class="active">Qtde</button>
+              <button data-mode="pct">%</button>
+            </div>
+          </div>
+          <div id="funnelBody"></div>
+        </div>
+      </div>
+
       <div class="card" style="margin-top:18px">
         <div class="filters">
           <input id="filtroBusca" placeholder="🔍 buscar por cliente, telefone ou ID...">
@@ -416,15 +602,37 @@ td .row-btn:hover{background:var(--brand);color:var(--on-brand)}
           <select id="filtroPilar"><option value="">Todos os pilares</option></select>
           <button class="btn" id="btnNova">+ Nova oportunidade</button>
           <button class="btn btn-ghost" id="btnRefresh">↻ Atualizar</button>
+          <div class="view-toggle" id="viewToggle" style="margin-left:auto">
+            <button data-view="lista" class="active">☰ Lista</button>
+            <button data-view="kanban">▦ Kanban</button>
+          </div>
         </div>
-        <table>
-          <thead><tr>
-            <th>Cliente</th><th>Vendedor</th><th>Loja</th>
-            <th>Pilar</th><th>Status</th><th>Etapa</th>
-            <th>Próxima ação</th><th>Valor</th><th></th>
-          </tr></thead>
-          <tbody id="tblBody"><tr><td colspan="9"><div class="loader"></div></td></tr></tbody>
-        </table>
+
+        <!-- VIEW: LISTA -->
+        <div id="viewLista">
+          <table>
+            <thead><tr>
+              <th>Temp.</th><th>Cliente</th><th>Vendedor</th>
+              <th>Pilar</th><th>Status</th><th>Etapa</th>
+              <th>Próxima ação</th><th>Valor</th><th></th>
+            </tr></thead>
+            <tbody id="tblBody"><tr><td colspan="9"><div class="loader"></div></td></tr></tbody>
+          </table>
+        </div>
+
+        <!-- VIEW: KANBAN -->
+        <div id="viewKanban" class="hidden">
+          <div class="kanban-toolbar">
+            <span class="kb-hint">💡 Arraste os cards entre as colunas — cada movimento é salvo na planilha automaticamente.</span>
+            <label class="kb-expand-toggle"><input type="checkbox" id="kbExpand"> Cards expandidos</label>
+            <span id="kbStatus" class="kb-saving"></span>
+          </div>
+          <div class="kanban-board" id="kanbanBoard"></div>
+          <div class="kanban-plan" id="kanbanPlan">
+            <div class="kp-head">📌 Planejamento <small>— arraste aqui o que precisa organizar</small></div>
+            <div class="kanban-col-body kb-plan-body" data-col="planejamento" id="planBody"></div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -631,6 +839,11 @@ const estado = {
   listas: null,
   config: { slaAmareloMin: 2, slaVermelhoMin: 5 },
   filtro: { busca:'', status:'', pilar:'' },
+  filtroAcao: null,           // card de ação inteligente ativo
+  funnelMode: 'qtd',          // 'qtd' ou 'pct'
+  acoes: [],                  // ações calculadas
+  view: 'lista',              // 'lista' ou 'kanban'
+  kanbanLista: [],            // lista renderizada no kanban (p/ abrir modal por índice)
   modal: { aberto:false, op:null, pilar:null, perfil:null, produtos:[], inicioMs:null, intervalo:null }
 };
 
@@ -787,9 +1000,9 @@ document.querySelectorAll('.tab').forEach(t => {
 // ===================================================================
 // OPORTUNIDADES
 // ===================================================================
-$('filtroBusca').addEventListener('input', e => { estado.filtro.busca = e.target.value.toLowerCase(); renderTabela(); });
-$('filtroStatus').addEventListener('change', e => { estado.filtro.status = e.target.value; renderTabela(); });
-$('filtroPilar').addEventListener('change', e => { estado.filtro.pilar = e.target.value; renderTabela(); });
+$('filtroBusca').addEventListener('input', e => { estado.filtro.busca = e.target.value.toLowerCase(); renderView(); });
+$('filtroStatus').addEventListener('change', e => { estado.filtro.status = e.target.value; renderView(); });
+$('filtroPilar').addEventListener('change', e => { estado.filtro.pilar = e.target.value; renderView(); });
 $('btnRefresh').addEventListener('click', carregarOportunidades);
 
 function carregarOportunidades(){
@@ -802,7 +1015,8 @@ function carregarOportunidades(){
       estado.config = r.config || estado.config;
       popularFiltros();
       renderStats();
-      renderTabela();
+      renderIntel(estado.oportunidades);
+      if (estado.view === 'kanban') renderKanban(); else renderTabela();
     })
     .catch(err => setHTML('tblBody','<tr><td colspan="9" class="empty">Falha: '+escapeHtml(err.message)+'</td></tr>'));
 }
@@ -830,8 +1044,162 @@ function renderStats(){
   setText('kpiFat', fmtMoney(fat));
 }
 
-function renderTabela(){
-  let lista = estado.oportunidades.slice();
+// ===================================================================
+// ENGINE DE INTELIGÊNCIA — temperatura, funil e ações do dia
+// ===================================================================
+const FUNIL_MAP = {
+  'Triagem':'topo', 'Diagnóstico':'topo', 'Diagnostico':'topo',
+  'Curadoria':'meio', 'Orçamento':'meio', 'Orcamento':'meio',
+  'Fechamento':'fundo'
+};
+function emAberto(o){
+  const s = String(o.Status_Comercial||'').toLowerCase();
+  return s !== 'convertido' && s !== 'perdido';
+}
+function convertido(o){ return String(o.Status_Comercial||'').toLowerCase() === 'convertido'; }
+function diasParado(o){
+  const d = o.Data_Proxima_Acao || o.Data_Abertura;
+  if (!d) return 0;
+  const dt = new Date(d);
+  if (isNaN(dt)) return 0;
+  return Math.max(0, Math.floor((Date.now() - dt.getTime())/86400000));
+}
+function tempScore(o){
+  let score = 0;
+  const camada = FUNIL_MAP[String(o.Etapa_Jornada||'').trim()] || 'topo';
+  score += camada==='fundo' ? 45 : camada==='meio' ? 28 : 10;
+  const s = String(o.Status_Comercial||'').toLowerCase();
+  if (s.indexOf('negocia') >= 0) score += 20;
+  if (Number(o.Valor_Orcado) > 0) score += 18;
+  const dias = diasParado(o);
+  if (dias <= 2) score += 17;
+  else if (dias <= 7) score += 8;
+  else if (dias > 21) score -= 12;
+  return Math.max(0, Math.min(100, score));
+}
+function temperatura(o){
+  if (!emAberto(o)) return null;
+  const sc = tempScore(o);
+  if (sc >= 60) return 'quente';
+  if (sc >= 35) return 'morno';
+  return 'frio';
+}
+const TEMP_INFO = {
+  quente:{lbl:'Quente', emoji:'🔥'},
+  morno: {lbl:'Morno',  emoji:'🌤️'},
+  frio:  {lbl:'Frio',   emoji:'❄️'}
+};
+
+function calcularAcoes(lista){
+  const abertas = lista.filter(emAberto);
+  const faceis = abertas.filter(o => temperatura(o)==='quente');
+  // Aumentar ticket / 2º par: tem armação sem lente premium OU só 1 produto de interesse
+  const ehTicket = (o) => {
+    if (!emAberto(o)) return false;
+    const p = String(o.Produto_Interesse||'').toLowerCase();
+    const temArmacao = p.indexOf('armaç')>=0 || p.indexOf('armac')>=0;
+    const temPremium = p.indexOf('premium')>=0;
+    const qtdProdutos = p.split(',').map(s=>s.trim()).filter(Boolean).length;
+    return (temArmacao && !temPremium) || qtdProdutos === 1; // upgrade de lente OU oportunidade de 2º item
+  };
+  const ticket = abertas.filter(ehTicket);
+  const parados = abertas.filter(o => diasParado(o) > 7);
+  const orcamentos = abertas.filter(o => Number(o.Valor_Orcado)>0 && Number(o.Valor_Vendido)<=0 && diasParado(o)>=3);
+  return [
+    // ── PRIORITÁRIAS (escolhidas) ──
+    { id:'faceis', icon:'🎯', color:'#ef4444', count:faceis.length, title:'Prontos para fechar',
+      desc:'Clientes quentes em etapa avançada. Priorize hoje.', primaria:true,
+      filtro:o=>temperatura(o)==='quente' },
+    { id:'ticket', icon:'📈', color:'#8b5cf6', count:ticket.length, title:'Aumentar ticket / 2º par',
+      desc:'Upgrade de lente premium ou oportunidade de 2ª peça.', primaria:true,
+      filtro:ehTicket },
+    // ── SECUNDÁRIAS ──
+    { id:'parados', icon:'⏰', color:'#f59e0b', count:parados.length, title:'Reativar parados',
+      desc:'Sem movimento há +7 dias. Faça um follow-up.', primaria:false,
+      filtro:o=>emAberto(o)&&diasParado(o)>7 },
+    { id:'orcamentos', icon:'💰', color:'#10b981', count:orcamentos.length, title:'Recuperar orçamentos',
+      desc:'Receberam proposta e não fecharam. Retome.', primaria:false,
+      filtro:o=>Number(o.Valor_Orcado)>0&&Number(o.Valor_Vendido)<=0&&diasParado(o)>=3&&emAberto(o) }
+  ];
+}
+
+function renderIntel(lista){
+  const acoes = calcularAcoes(lista);
+  estado.acoes = acoes;
+  const primarias = acoes.filter(a => a.primaria);
+  const secundarias = acoes.filter(a => !a.primaria);
+
+  const cardHTML = (a, pequeno) =>
+    '<div class="action-card'+(pequeno?' action-card-sm':'')+'" data-acao="'+a.id+'" style="--ac-color:'+a.color+'">'+
+      '<span class="ac-icon">'+a.icon+'</span>'+
+      '<div class="ac-count">'+a.count+'</div>'+
+      '<div class="ac-title">'+a.title+'</div>'+
+      (pequeno ? '' : '<div class="ac-desc">'+a.desc+'</div>')+
+      '<div class="ac-cta">Ver clientes →</div>'+
+    '</div>';
+
+  $('intelActions').innerHTML =
+    '<div class="intel-primary">'  + primarias.map(a => cardHTML(a,false)).join('') + '</div>' +
+    '<div class="intel-secondary-label">Outras ações úteis</div>' +
+    '<div class="intel-secondary">' + secundarias.map(a => cardHTML(a,true)).join('') + '</div>';
+
+  document.querySelectorAll('.action-card').forEach(c => {
+    c.addEventListener('click', () => {
+      const acao = estado.acoes.find(a => a.id === c.dataset.acao);
+      estado.filtroAcao = (estado.filtroAcao === acao.id) ? null : acao.id;
+      document.querySelectorAll('.action-card').forEach(x => x.style.outline = '');
+      if (estado.filtroAcao){ c.style.outline = '2px solid '+acao.color; c.style.outlineOffset='1px'; }
+      renderView();
+    });
+  });
+  renderFunil(lista);
+}
+
+function renderFunil(lista){
+  const abertas = lista.filter(emAberto);
+  const conv = lista.filter(convertido);
+  const camadas = { topo:0, meio:0, fundo:0 };
+  abertas.forEach(o => {
+    const c = FUNIL_MAP[String(o.Etapa_Jornada||'').trim()] || 'topo';
+    camadas[c]++;
+  });
+  const totalAtivo = abertas.length + conv.length;
+  const modo = estado.funnelMode || 'qtd';
+  const pct = (n) => totalAtivo ? Math.round(n/totalAtivo*100) : 0;
+  const val = (n) => modo==='pct' ? pct(n)+'%' : n;
+  const stages = [
+    { lbl:'Topo',  emoji:'🔭', sub:'Triagem · Diagnóstico', n:camadas.topo,  w:100, color:'#3b82f6' },
+    { lbl:'Meio',  emoji:'🔍', sub:'Curadoria · Orçamento', n:camadas.meio,  w:78,  color:'#f59e0b' },
+    { lbl:'Fundo', emoji:'🎯', sub:'Fechamento',            n:camadas.fundo, w:56,  color:'#ef4444' }
+  ];
+  let html = stages.map(s =>
+    '<div class="funnel-stage">'+
+      '<div class="funnel-bar" style="width:'+s.w+'%;background:'+s.color+'">'+
+        '<span class="fb-label">'+s.emoji+' '+s.lbl+'</span>'+
+        '<span class="fb-val">'+val(s.n)+'</span>'+
+      '</div>'+
+      '<div class="fb-sub">'+s.sub+'</div>'+
+    '</div>'
+  ).join('');
+  html += '<div class="funnel-conv">'+
+    '<div class="fc-val">'+val(conv.length)+'</div>'+
+    '<div class="fc-lbl">✓ '+(modo==='pct'?'Taxa de conversão':'Fechados')+'</div>'+
+  '</div>';
+  $('funnelBody').innerHTML = html;
+}
+
+// toggle do funil (Qtde / %)
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('#funnelToggle button');
+  if (!btn) return;
+  estado.funnelMode = btn.dataset.mode;
+  document.querySelectorAll('#funnelToggle button').forEach(b => b.classList.toggle('active', b===btn));
+  renderFunil(aplicarFiltros(estado.oportunidades));
+});
+
+// aplica busca/status/pilar (sem o filtro de ação) — usado pelo funil também
+function aplicarFiltros(base){
+  let lista = base.slice();
   const f = estado.filtro;
   if (f.busca) {
     lista = lista.filter(o =>
@@ -839,25 +1207,41 @@ function renderTabela(){
         .some(x => String(x||'').toLowerCase().indexOf(f.busca) >= 0));
   }
   if (f.status) lista = lista.filter(o => o.Status_Comercial === f.status);
-  if (f.pilar) lista = lista.filter(o => o.Pilar_Principal === f.pilar);
+  if (f.pilar) lista = lista.filter(o => String(o.Pilar_Principal||'').indexOf(f.pilar) >= 0);
+  return lista;
+}
+
+function renderTabela(){
+  let lista = aplicarFiltros(estado.oportunidades);
+
+  // filtro de AÇÃO INTELIGENTE (vindo do clique no card)
+  if (estado.filtroAcao && estado.acoes) {
+    const acao = estado.acoes.find(a => a.id === estado.filtroAcao);
+    if (acao) lista = lista.filter(acao.filtro);
+  }
 
   if (!lista.length) {
     setHTML('tblBody','<tr><td colspan="9" class="empty">Nenhuma oportunidade encontrada.</td></tr>');
     return;
   }
-  setHTML('tblBody', lista.map((o,i) =>
-    '<tr>'+
+  setHTML('tblBody', lista.map((o,i) => {
+    const t = temperatura(o);
+    const tCell = t
+      ? '<span class="'+( 'temp-'+t )+'"><span class="temp-dot"></span><span class="temp-label">'+TEMP_INFO[t].lbl+'</span></span>'
+      : '<span style="color:var(--text-3)">—</span>';
+    const trClass = t ? ('temp-'+t) : '';
+    return '<tr class="'+trClass+'">'+
+      '<td>'+tCell+'</td>'+
       '<td><b>'+escapeHtml(o.Nome_Cliente||'—')+'</b><br><small style="color:var(--text-3)">'+escapeHtml(o.Telefone||'')+'</small></td>'+
       '<td>'+escapeHtml(o.Vendedor_Responsavel||'—')+'</td>'+
-      '<td>'+escapeHtml(o.Loja||'—')+'</td>'+
       '<td><span class="badge">'+escapeHtml(o.Pilar_Principal||'—')+'</span></td>'+
       '<td>'+escapeHtml(o.Status_Comercial||'—')+'</td>'+
       '<td>'+escapeHtml(o.Etapa_Jornada||'—')+'</td>'+
       '<td>'+escapeHtml(o.Proxima_Acao||'—')+'</td>'+
       '<td>'+(Number(o.Valor_Vendido)?fmtMoney(o.Valor_Vendido):fmtMoney(o.Valor_Orcado))+'</td>'+
       '<td><button class="row-btn" data-i="'+i+'">Atender</button></td>'+
-    '</tr>'
-  ).join(''));
+    '</tr>';
+  }).join(''));
 
   document.querySelectorAll('.row-btn').forEach(b => {
     b.addEventListener('click', () => {
@@ -868,8 +1252,221 @@ function renderTabela(){
 }
 
 // ===================================================================
-// MODAL ATENDIMENTO
+// KANBAN — colunas por etapa + desfechos + planejamento, com drag&drop
 // ===================================================================
+// Definição das colunas (esquerda → direita). Cada uma sabe que campo grava.
+const KANBAN_COLS = [
+  { id:'Triagem',     campo:'Etapa_Jornada',    valor:'Triagem',     label:'Triagem',     cor:'#3b82f6' },
+  { id:'Diagnóstico', campo:'Etapa_Jornada',    valor:'Diagnóstico', label:'Diagnóstico', cor:'#0ea5e9' },
+  { id:'Curadoria',   campo:'Etapa_Jornada',    valor:'Curadoria',   label:'Curadoria',   cor:'#8b5cf6' },
+  { id:'Orçamento',   campo:'Etapa_Jornada',    valor:'Orçamento',   label:'Orçamento',   cor:'#f59e0b' },
+  { id:'Fechamento',  campo:'Etapa_Jornada',    valor:'Fechamento',  label:'Fechamento',  cor:'#10b981' },
+  { id:'Perdido',     campo:'Status_Comercial', valor:'Perdido',     label:'Perdido',     cor:'#ef4444' },
+  { id:'Suspenso',    campo:'Status_Comercial', valor:'Suspenso',    label:'Suspenso',    cor:'#94a3b8' }
+];
+
+// decide em qual coluna um card aparece
+function colunaDoCard(o){
+  const st = String(o.Status_Comercial||'').toLowerCase();
+  if (st === 'planejamento') return 'planejamento';
+  if (st === 'perdido') return 'Perdido';
+  if (st === 'suspenso') return 'Suspenso';
+  if (st === 'convertido') return 'Fechamento'; // convertido fica no fundo
+  // senão, usa a etapa da jornada
+  const et = String(o.Etapa_Jornada||'').trim();
+  const existe = KANBAN_COLS.find(c => c.id === et);
+  return existe ? et : 'Triagem';
+}
+
+function cardHTML(o, idx){
+  const t = temperatura(o);
+  const tcolor = t==='quente'?'#ef4444':t==='morno'?'#f59e0b':t==='frio'?'#3b82f6':'var(--border)';
+  const valor = Number(o.Valor_Vendido)?fmtMoney(o.Valor_Vendido):(Number(o.Valor_Orcado)?fmtMoney(o.Valor_Orcado):'—');
+  const tdot = t ? '<span class="kc-temp-dot" style="background:'+tcolor+'"></span>' : '';
+  return '<div class="kb-card" draggable="true" data-id="'+escapeHtml(o.ID_Oportunidade)+'" data-i="'+idx+'" style="--kc-temp:'+tcolor+'">'+
+      '<div class="kc-name">'+tdot+escapeHtml(o.Nome_Cliente||'—')+'</div>'+
+      // conteúdo expandido (visível só no modo expandido)
+      '<div class="kc-expand">'+
+        '<div class="kc-meta">'+escapeHtml(o.Vendedor_Responsavel||'')+(o.Telefone?' · '+escapeHtml(o.Telefone):'')+'</div>'+
+        (o.Pilar_Principal?'<span class="kc-pilar">'+escapeHtml(String(o.Pilar_Principal).split(',')[0])+'</span>':'')+
+        '<div class="kc-val">'+valor+'</div>'+
+      '</div>'+
+      // tooltip de hover (modo compacto)
+      '<div class="kc-hover">'+
+        '<b>'+escapeHtml(o.Nome_Cliente||'—')+'</b><br>'+
+        'Vendedor: '+escapeHtml(o.Vendedor_Responsavel||'—')+'<br>'+
+        'Status: '+escapeHtml(o.Status_Comercial||'—')+'<br>'+
+        'Pilar: '+escapeHtml(o.Pilar_Principal||'—')+'<br>'+
+        'Valor: '+valor+
+        (o.Proxima_Acao?'<br>Próx. ação: '+escapeHtml(o.Proxima_Acao):'')+
+      '</div>'+
+    '</div>';
+}
+
+function renderKanban(){
+  let lista = aplicarFiltros(estado.oportunidades);
+  if (estado.filtroAcao && estado.acoes) {
+    const acao = estado.acoes.find(a => a.id === estado.filtroAcao);
+    if (acao) lista = lista.filter(acao.filtro);
+  }
+  estado.kanbanLista = lista; // referência para abrir modal por índice
+
+  // agrupa por coluna
+  const grupos = {}; KANBAN_COLS.forEach(c => grupos[c.id] = []);
+  grupos['planejamento'] = [];
+  lista.forEach((o,i) => {
+    const col = colunaDoCard(o);
+    (grupos[col] || grupos['Triagem']).push({o, i});
+  });
+
+  // monta as colunas
+  const board = $('kanbanBoard');
+  board.innerHTML = KANBAN_COLS.map(c => {
+    const cards = grupos[c.id] || [];
+    return '<div class="kanban-col">'+
+      '<div class="kanban-col-head">'+
+        '<span><span class="kc-dot" style="background:'+c.cor+'"></span>'+c.label+'</span>'+
+        '<span style="display:flex;align-items:center;gap:6px">'+
+          '<span class="kc-count">'+cards.length+'</span>'+
+          '<button class="kc-add" data-col="'+c.id+'" title="Nova oportunidade nesta etapa">+</button>'+
+        '</span>'+
+      '</div>'+
+      '<div class="kanban-col-body" data-col="'+c.id+'">'+
+        cards.map(x => cardHTML(x.o, x.i)).join('')+
+      '</div>'+
+    '</div>';
+  }).join('');
+
+  // planejamento (faixa de baixo)
+  const plan = grupos['planejamento'] || [];
+  $('planBody').innerHTML = plan.map(x => cardHTML(x.o, x.i)).join('') ||
+    '<div style="color:var(--text-3);font-size:12px;padding:6px">Arraste aqui os cards que você quer planejar.</div>';
+
+  aplicarExpandido();
+  ligarDragDrop();
+  ligarCliqueCards();
+}
+
+function aplicarExpandido(){
+  const exp = $('kbExpand').checked;
+  document.querySelectorAll('.kb-card').forEach(c => c.classList.toggle('expanded', exp));
+}
+
+function ligarCliqueCards(){
+  document.querySelectorAll('.kb-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+      if (card.classList.contains('dragging')) return;
+      const idx = Number(card.dataset.i);
+      if (estado.kanbanLista && estado.kanbanLista[idx]) abrirModal(estado.kanbanLista[idx]);
+    });
+  });
+}
+
+let _dragId = null;
+function ligarDragDrop(){
+  document.querySelectorAll('.kb-card').forEach(card => {
+    card.addEventListener('dragstart', () => { _dragId = card.dataset.id; card.classList.add('dragging'); });
+    card.addEventListener('dragend',   () => { card.classList.remove('dragging'); _dragId = null; });
+  });
+  document.querySelectorAll('.kanban-col-body, .kb-plan-body').forEach(body => {
+    body.addEventListener('dragover', (e) => { e.preventDefault(); body.classList.add('drag-over'); });
+    body.addEventListener('dragleave', () => body.classList.remove('drag-over'));
+    body.addEventListener('drop', (e) => {
+      e.preventDefault();
+      body.classList.remove('drag-over');
+      const colDestino = body.dataset.col;
+      if (_dragId) moverCardKanban(_dragId, colDestino);
+    });
+  });
+}
+
+// Move o card: atualiza estado local na hora (otimista) + grava na planilha; rollback se falhar
+function moverCardKanban(id, colDestino){
+  const op = estado.oportunidades.find(o => String(o.ID_Oportunidade) === String(id));
+  if (!op) return;
+
+  const colAtual = colunaDoCard(op);
+  if (colAtual === colDestino) return; // não mudou
+
+  // guarda estado anterior para rollback
+  const anterior = { Etapa_Jornada: op.Etapa_Jornada, Status_Comercial: op.Status_Comercial };
+
+  // calcula as mudanças conforme a coluna de destino
+  let mudancas = {};
+  if (colDestino === 'planejamento') {
+    mudancas = { Status_Comercial:'Planejamento' };
+  } else {
+    const def = KANBAN_COLS.find(c => c.id === colDestino);
+    if (!def) return;
+    if (def.campo === 'Etapa_Jornada') {
+      mudancas = { Etapa_Jornada: def.valor };
+      // se estava num status de desfecho (Perdido/Suspenso/Planejamento), reabre como "Em aberto"
+      const st = String(op.Status_Comercial||'').toLowerCase();
+      if (st==='perdido'||st==='suspenso'||st==='planejamento') mudancas.Status_Comercial = 'Em aberto';
+      if (def.valor==='Fechamento' && st!=='convertido') mudancas.Status_Comercial = op.Status_Comercial || 'Em negociação';
+    } else { // Status_Comercial (Perdido / Suspenso)
+      mudancas = { Status_Comercial: def.valor };
+    }
+  }
+
+  // aplica localmente (otimista) e re-renderiza
+  Object.assign(op, mudancas);
+  renderStats(); renderIntel(estado.oportunidades); renderKanban();
+
+  // salva na planilha
+  kbStatus('saving','💾 salvando...');
+  apiCall('moverCard', { usuario: estado.usuario, idOportunidade: id, mudancas: mudancas })
+    .then(r => {
+      if (!r.ok) throw new Error(r.erro||'Erro ao salvar');
+      kbStatus('ok','✓ salvo');
+      setTimeout(()=>kbStatus('',''), 1500);
+      // Se moveu para FECHAMENTO, abre o modal para registrar o valor da venda
+      if (colDestino === 'Fechamento') {
+        setTimeout(() => abrirModal(op), 250);
+      }
+    })
+    .catch(err => {
+      // rollback
+      Object.assign(op, anterior);
+      renderStats(); renderIntel(estado.oportunidades); renderKanban();
+      kbStatus('err','✗ não salvou: '+err.message);
+      setTimeout(()=>kbStatus('',''), 4000);
+    });
+}
+
+function kbStatus(cls, txt){
+  const e = $('kbStatus');
+  e.className = 'kb-saving ' + (cls||'');
+  e.textContent = txt || '';
+}
+
+// renderiza a view ativa (lista ou kanban) — usar após filtros
+function renderView(){
+  if (estado.view === 'kanban') renderKanban(); else renderTabela();
+}
+
+// alterna entre Lista e Kanban
+function setView(view){
+  estado.view = view;
+  show('viewLista', view==='lista');
+  show('viewKanban', view==='kanban');
+  document.querySelectorAll('#viewToggle button').forEach(b => b.classList.toggle('active', b.dataset.view===view));
+  if (view==='kanban') renderKanban(); else renderTabela();
+}
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('#viewToggle button');
+  if (b) setView(b.dataset.view);
+});
+document.addEventListener('change', (e) => {
+  if (e.target && e.target.id === 'kbExpand') aplicarExpandido();
+});
+// botão "+" nas colunas do Kanban → nova oportunidade já na etapa/status da coluna
+document.addEventListener('click', (e) => {
+  const add = e.target.closest('.kc-add');
+  if (add) { e.stopPropagation(); abrirModalNova(add.dataset.col); }
+});
+
+
 $('btnFecharModal').addEventListener('click', fecharModal);
 $('btnFecharModalX').addEventListener('click', fecharModal);
 $('btnIniciar').addEventListener('click', iniciarAtendimento);
@@ -1074,13 +1671,28 @@ $('btnFecharNova').addEventListener('click', () => showModal('modalNova', false)
 $('btnFecharNovaX').addEventListener('click', () => showModal('modalNova', false));
 $('btnSalvarNova').addEventListener('click', salvarNova);
 
-function abrirModalNova(){
+function abrirModalNova(colInicial){
   setErr('novaErr','');
   $('novaNome').value = '';
   $('novaTelefone').value = '';
   $('novaProduto').value = '';
   $('novaNecessidade').value = '';
   $('novaIniciar').checked = true;
+
+  // pré-define etapa/status conforme a coluna clicada no Kanban
+  estado.novaColuna = null;
+  if (colInicial) {
+    if (colInicial === 'planejamento') {
+      estado.novaColuna = { Status_Comercial:'Planejamento' };
+    } else {
+      const def = KANBAN_COLS.find(c => c.id === colInicial);
+      if (def) {
+        estado.novaColuna = (def.campo === 'Etapa_Jornada')
+          ? { Etapa_Jornada: def.valor }
+          : { Status_Comercial: def.valor };
+      }
+    }
+  }
 
   if (estado.usuario.papel === 'vendedor') {
     $('boxVendedor').style.display = 'none';
@@ -1114,6 +1726,11 @@ function salvarNova(){
     necessidadePrincipal: $('novaNecessidade').value.trim(),
     iniciarAgora: $('novaIniciar').checked
   };
+  // se veio de um "+" de coluna do Kanban, já nasce na etapa/status certo
+  if (estado.novaColuna) {
+    if (estado.novaColuna.Etapa_Jornada)    payload.etapaJornada = estado.novaColuna.Etapa_Jornada;
+    if (estado.novaColuna.Status_Comercial) payload.statusComercial = estado.novaColuna.Status_Comercial;
+  }
   $('btnSalvarNova').disabled = true;
   $('btnSalvarNova').textContent = '... salvando';
 
@@ -1129,8 +1746,10 @@ function salvarNova(){
         if (!r2.ok) return;
         estado.oportunidades = r2.oportunidades || [];
         estado.listas = r2.listas;
+        estado.novaColuna = null;
         renderStats();
-        renderTabela();
+        renderIntel(estado.oportunidades);
+        renderView();
         if (abrir) {
           const op = estado.oportunidades.find(o => o.ID_Oportunidade === novoId);
           if (op) abrirModal(op);
@@ -1198,6 +1817,12 @@ function carregarDashboard(){
   setHTML('dashKpis','<div class="loader"></div>');
   setHTML('dashConteudo','');
   setHTML('dashAlertas','');
+  // garante que temos as oportunidades em memória (para o funil e termômetro)
+  if (!estado.oportunidades || !estado.oportunidades.length) {
+    apiCall('listarOportunidades', { usuario: estado.usuario })
+      .then(r => { if (r && r.ok) estado.oportunidades = r.oportunidades || []; })
+      .catch(()=>{});
+  }
   const filtros = {
     loja: $('dashFiltroLoja').value || '',
     vendedor: $('dashFiltroVendedor').value || '',
@@ -1244,6 +1869,10 @@ function renderDashboard(r){
 
   // tabelas
   let html = '';
+
+  // ── Visão gráfica: mini-funil + termômetro (calculado das oportunidades em memória) ──
+  html += renderDashGraficos();
+
   html += secaoAgrupada('Por loja', r.porLoja);
   html += secaoAgrupada('Por pilar', r.porPilar);
   html += secaoAgrupada('Por etapa', r.porEtapa);
@@ -1260,6 +1889,65 @@ function renderDashboard(r){
 
 function kpiCard(lbl, val){
   return '<div class="stat"><div class="lbl">'+escapeHtml(lbl)+'</div><div class="val">'+escapeHtml(String(val))+'</div></div>';
+}
+
+// Gera bloco gráfico do dashboard: funil + distribuição de temperatura
+function renderDashGraficos(){
+  const lista = estado.oportunidades || [];
+  if (!lista.length) return '';
+
+  // funil
+  const abertas = lista.filter(emAberto);
+  const conv = lista.filter(convertido);
+  const camadas = { topo:0, meio:0, fundo:0 };
+  abertas.forEach(o => { camadas[FUNIL_MAP[String(o.Etapa_Jornada||'').trim()] || 'topo']++; });
+  const totalAtivo = abertas.length + conv.length;
+  const pct = n => totalAtivo ? Math.round(n/totalAtivo*100) : 0;
+
+  // temperatura
+  const temps = { quente:0, morno:0, frio:0 };
+  abertas.forEach(o => { const t = temperatura(o); if (t) temps[t]++; });
+  const totalTemp = temps.quente + temps.morno + temps.frio || 1;
+
+  const stages = [
+    { lbl:'Topo',  emoji:'🔭', n:camadas.topo,  w:100, color:'#3b82f6' },
+    { lbl:'Meio',  emoji:'🔍', n:camadas.meio,  w:78,  color:'#f59e0b' },
+    { lbl:'Fundo', emoji:'🎯', n:camadas.fundo, w:56,  color:'#ef4444' }
+  ];
+
+  let h = '<div class="dash-graficos">';
+
+  // Funil
+  h += '<div class="funnel-card" style="margin:0">';
+  h += '<div class="funnel-head"><h3>Funil de vendas</h3></div>';
+  h += stages.map(s =>
+    '<div class="funnel-stage"><div class="funnel-bar" style="width:'+s.w+'%;background:'+s.color+'">'+
+      '<span class="fb-label">'+s.emoji+' '+s.lbl+'</span>'+
+      '<span class="fb-val">'+s.n+' · '+pct(s.n)+'%</span>'+
+    '</div></div>'
+  ).join('');
+  h += '<div class="funnel-conv"><div class="fc-val">'+conv.length+' · '+pct(conv.length)+'%</div>'+
+       '<div class="fc-lbl">✓ Fechados</div></div>';
+  h += '</div>';
+
+  // Termômetro
+  const barra = (cor, n) => '<div style="height:100%;width:'+Math.round(n/totalTemp*100)+'%;background:'+cor+'"></div>';
+  h += '<div class="funnel-card" style="margin:0">';
+  h += '<div class="funnel-head"><h3>Termômetro da carteira</h3></div>';
+  h += '<div class="thermo-bar">'+barra('#ef4444',temps.quente)+barra('#f59e0b',temps.morno)+barra('#3b82f6',temps.frio)+'</div>';
+  h += '<div class="thermo-legend">'+
+    '<span><span class="tl-dot" style="background:#ef4444"></span>🔥 Quente: <b>'+temps.quente+'</b></span>'+
+    '<span><span class="tl-dot" style="background:#f59e0b"></span>🌤️ Morno: <b>'+temps.morno+'</b></span>'+
+    '<span><span class="tl-dot" style="background:#3b82f6"></span>❄️ Frio: <b>'+temps.frio+'</b></span>'+
+  '</div>';
+  h += '<div style="font-size:11.5px;color:var(--text-3);margin-top:10px;line-height:1.5">'+
+    'A carteira tem <b>'+temps.quente+'</b> oportunidade(s) quente(s) — priorize o fechamento. '+
+    (temps.frio > temps.quente ? 'Há mais frios que quentes: vale aquecer a base com follow-up.' : 'Boa proporção de oportunidades aquecidas.')+
+  '</div>';
+  h += '</div>';
+
+  h += '</div>';
+  return h;
 }
 
 function secaoAgrupada(titulo, lista){
