@@ -4,89 +4,300 @@
 <meta charset="utf-8">
 <title>CRM Ocularium</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#0b1220; --panel:#0f172a; --panel2:#111c33; --border:#1e293b;
-  --text:#e2e8f0; --muted:#94a3b8;
-  --brand:#0ea5e9; --brand2:#0284c7;
-  --ok:#22c55e; --warn:#f59e0b; --alert:#ef4444;
+/* ============================================================
+   SISTEMA DE DESIGN — CRM Ocularium
+   Dois temas (escuro/claro) com matiz ajustada para uso prolongado.
+   Escuro: azul-petróleo suave (menos cansativo que preto puro).
+   Claro: off-white levemente quente (não branco estéril).
+   ============================================================ */
+
+/* ---- TEMA ESCURO (padrão) ---- */
+:root, [data-theme="dark"]{
+  --bg:        #0d1526;   /* fundo geral - azul petróleo profundo */
+  --surface:   #141d33;   /* cards e barras */
+  --surface-2: #1b2540;   /* inputs, chips, elementos elevados */
+  --surface-3: #232f4f;   /* hover */
+  --border:    #2a3654;   /* bordas sutis */
+  --border-strong: #3d4b6e;
+
+  --text:      #eef2f9;   /* texto principal */
+  --text-2:    #aab4ca;   /* texto secundário */
+  --text-3:    #6b7793;   /* texto terciário / placeholders */
+
+  --brand:     #38bdf8;   /* ciano da marca */
+  --brand-2:   #0ea5e9;   /* ciano mais forte (hover) */
+  --brand-soft:rgba(56,189,248,.14);
+
+  --ok:        #34d399;
+  --ok-soft:   rgba(52,211,153,.14);
+  --warn:      #fbbf24;
+  --warn-soft: rgba(251,191,36,.14);
+  --alert:     #f87171;
+  --alert-soft:rgba(248,113,113,.14);
+
+  --shadow:    0 8px 28px rgba(0,0,0,.45);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,.3);
 }
+
+/* ---- TEMA CLARO ---- */
+[data-theme="light"]{
+  --bg:        #f4f6fb;   /* off-white levemente azulado, não branco puro */
+  --surface:   #ffffff;
+  --surface-2: #eef1f7;
+  --surface-3: #e3e8f2;
+  --border:    #dce1ec;
+  --border-strong: #c3cbdd;
+
+  --text:      #1a2236;
+  --text-2:    #515d78;
+  --text-3:    #8b95ad;
+
+  --brand:     #0284c7;
+  --brand-2:   #0369a1;
+  --brand-soft:rgba(2,132,199,.10);
+
+  --ok:        #059669;
+  --ok-soft:   rgba(5,150,105,.12);
+  --warn:      #d97706;
+  --warn-soft: rgba(217,119,6,.12);
+  --alert:     #dc2626;
+  --alert-soft:rgba(220,38,38,.10);
+
+  --shadow:    0 8px 28px rgba(30,41,59,.12);
+  --shadow-sm: 0 2px 8px rgba(30,41,59,.08);
+}
+
 *{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+body{
+  margin:0;
+  font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  transition:background .25s ease, color .25s ease;
+}
 
-.topbar{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 22px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50}
-.brand{font-weight:700;color:var(--brand);font-size:18px}
-.brand .sub{color:var(--muted);font-weight:400;font-size:12px;margin-left:8px}
-.userbox{display:flex;gap:10px;align-items:center;font-size:13px;color:var(--muted)}
+/* ---------- TOPBAR ---------- */
+.topbar{
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:13px 22px;
+  display:flex;justify-content:space-between;align-items:center;
+  position:sticky;top:0;z-index:50;
+  box-shadow:var(--shadow-sm);
+}
+.brand{font-weight:700;color:var(--brand);font-size:18px;letter-spacing:-.3px;display:flex;align-items:center;gap:8px}
+.brand .sub{color:var(--text-3);font-weight:400;font-size:12px}
+.userbox{display:flex;gap:12px;align-items:center;font-size:13px;color:var(--text-2)}
 .userbox b{color:var(--text)}
-.btn{background:var(--brand);color:white;border:0;padding:8px 14px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:500}
-.btn:hover{background:var(--brand2)}
-.btn:disabled{background:#475569;cursor:not-allowed}
-.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+.user-chip{display:flex;align-items:center;gap:8px;background:var(--surface-2);padding:6px 12px;border-radius:99px;border:1px solid var(--border)}
+.user-av{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--brand),#6366f1);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff}
+
+/* ---------- BOTÕES ---------- */
+.btn{
+  background:var(--brand);color:#fff;border:0;
+  padding:9px 16px;border-radius:8px;cursor:pointer;
+  font-size:13px;font-weight:600;font-family:inherit;
+  transition:all .15s ease;display:inline-flex;align-items:center;gap:6px;
+}
+.btn:hover{background:var(--brand-2);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn:disabled{background:var(--text-3);cursor:not-allowed;transform:none;opacity:.6}
+.btn-ghost{background:transparent;border:1px solid var(--border-strong);color:var(--text)}
+.btn-ghost:hover{background:var(--surface-2);transform:none}
 .btn-ok{background:var(--ok)}
+.btn-ok:hover{background:var(--ok);filter:brightness(1.1)}
 .btn-warn{background:var(--warn);color:#1a1a1a}
+.btn-warn:hover{background:var(--warn);filter:brightness(1.05)}
+.icon-btn{
+  width:36px;height:36px;border-radius:8px;background:var(--surface-2);
+  border:1px solid var(--border);color:var(--text-2);cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;font-size:15px;transition:all .15s;
+}
+.icon-btn:hover{background:var(--surface-3);color:var(--text)}
 
-.container{max-width:1400px;margin:0 auto;padding:20px}
-.card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:18px}
-.card h2{margin:0 0 14px;font-size:16px;color:var(--text)}
+/* ---------- LAYOUT ---------- */
+.container{max-width:1400px;margin:0 auto;padding:22px}
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:20px;margin-bottom:18px;
+  box-shadow:var(--shadow-sm);
+}
+.card h2{margin:0 0 16px;font-size:15px;color:var(--text);font-weight:600}
 
-.tabs{display:flex;gap:4px;margin-bottom:18px;border-bottom:1px solid var(--border)}
-.tab{padding:10px 18px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;font-size:14px}
-.tab.active{color:var(--brand);border-bottom-color:var(--brand)}
+/* ---------- ABAS ---------- */
+.tabs{display:flex;gap:2px;margin-bottom:20px;border-bottom:1px solid var(--border)}
+.tab{
+  padding:11px 20px;cursor:pointer;color:var(--text-2);
+  border-bottom:2px solid transparent;font-size:14px;font-weight:500;
+  transition:all .15s;margin-bottom:-1px;
+}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--brand);border-bottom-color:var(--brand);font-weight:600}
 
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
-.stat{background:var(--panel2);border:1px solid var(--border);padding:14px;border-radius:8px}
-.stat .lbl{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px}
-.stat .val{font-size:22px;font-weight:700;margin-top:6px}
+/* ---------- KPI / STATS ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px}
+.stat{
+  background:var(--surface);border:1px solid var(--border);
+  padding:16px 18px;border-radius:12px;box-shadow:var(--shadow-sm);
+}
+.stat .lbl{color:var(--text-3);font-size:11px;text-transform:uppercase;letter-spacing:.6px;font-weight:600}
+.stat .val{font-size:26px;font-weight:700;margin-top:8px;letter-spacing:-.5px}
 
-.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
-.filters input,.filters select{background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;min-width:160px}
+/* ---------- FILTROS ---------- */
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+.filters input,.filters select{
+  background:var(--surface-2);border:1px solid var(--border);color:var(--text);
+  padding:9px 12px;border-radius:8px;font-size:13px;min-width:170px;font-family:inherit;
+  transition:border-color .15s;
+}
+.filters input:focus,.filters select:focus{outline:none;border-color:var(--brand)}
 
+/* ---------- TABELA ---------- */
 table{width:100%;border-collapse:collapse}
-th,td{padding:10px 12px;text-align:left;font-size:13px;border-bottom:1px solid var(--border)}
-th{background:var(--panel2);color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
-tr:hover td{background:#0e1a30}
-td .row-btn{background:transparent;border:1px solid var(--brand);color:var(--brand);padding:4px 10px;border-radius:5px;cursor:pointer;font-size:12px}
-td .row-btn:hover{background:var(--brand);color:white}
+th,td{padding:12px 14px;text-align:left;font-size:13px;border-bottom:1px solid var(--border)}
+th{
+  background:var(--surface-2);color:var(--text-3);font-weight:600;
+  font-size:11px;text-transform:uppercase;letter-spacing:.6px;
+  position:sticky;top:0;
+}
+th:first-child{border-top-left-radius:8px}
+th:last-child{border-top-right-radius:8px}
+tr:hover td{background:var(--surface-2)}
+td .row-btn{
+  background:var(--brand-soft);border:1px solid transparent;color:var(--brand);
+  padding:6px 14px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s;
+}
+td .row-btn:hover{background:var(--brand);color:#fff}
 
+/* ---------- INDICADORES ---------- */
 .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
 .dot-verde{background:var(--ok)}.dot-amarelo{background:var(--warn)}.dot-vermelho{background:var(--alert)}
-.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;background:var(--panel2);border:1px solid var(--border)}
+.badge{
+  display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600;
+  background:var(--surface-2);border:1px solid var(--border);color:var(--text-2);
+}
 
-.empty{color:var(--muted);text-align:center;padding:30px;font-size:14px}
-.alert{background:#3f1d1d;color:#fca5a5;padding:10px;border-radius:6px;font-size:13px;margin-bottom:10px}
-.loader{border:3px solid var(--border);border-top:3px solid var(--brand);border-radius:50%;width:22px;height:22px;animation:spin 1s linear infinite;margin:20px auto;display:block}
+.empty{color:var(--text-3);text-align:center;padding:36px;font-size:14px}
+.alert{
+  background:var(--alert-soft);color:var(--alert);padding:11px 14px;border-radius:8px;
+  font-size:13px;margin-bottom:10px;border:1px solid var(--alert);
+}
+.loader{
+  border:3px solid var(--border);border-top:3px solid var(--brand);border-radius:50%;
+  width:24px;height:24px;animation:spin .8s linear infinite;margin:24px auto;display:block;
+}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* Login */
+/* ---------- LOGIN ---------- */
 .login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
-.login-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:40px;width:100%;max-width:380px}
-.login-card h1{color:var(--brand);margin:0 0 6px;font-size:22px}
-.login-card p{color:var(--muted);font-size:13px;margin:0 0 24px}
-.login-card label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;margin-top:14px;text-transform:uppercase;letter-spacing:.5px}
-.login-card input{width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:6px;font-size:14px}
-.login-card .btn{width:100%;margin-top:20px;padding:12px}
+.login-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:18px;
+  padding:40px;width:100%;max-width:400px;box-shadow:var(--shadow);
+}
+.login-card h1{color:var(--brand);margin:0 0 6px;font-size:24px;letter-spacing:-.5px;display:flex;align-items:center;gap:8px}
+.login-card p{color:var(--text-2);font-size:13px;margin:0 0 28px}
+.login-card label{display:block;font-size:11px;color:var(--text-3);margin-bottom:6px;margin-top:16px;text-transform:uppercase;letter-spacing:.6px;font-weight:600}
+.login-card input{
+  width:100%;background:var(--surface-2);border:1.5px solid var(--border);color:var(--text);
+  padding:12px 14px;border-radius:10px;font-size:15px;font-family:inherit;transition:border-color .15s;
+}
+.login-card input:focus{outline:none;border-color:var(--brand)}
+.login-card .btn{width:100%;margin-top:24px;padding:14px;font-size:15px;justify-content:center}
 
-/* Modal */
-.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;overflow-y:auto}
+/* ---------- MODAL ---------- */
+.modal-backdrop{
+  position:fixed;inset:0;background:rgba(8,12,22,.7);backdrop-filter:blur(3px);
+  display:none;align-items:center;justify-content:center;z-index:100;padding:20px;overflow-y:auto;
+}
 .modal-backdrop.show{display:flex}
-.modal{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:24px;width:100%;max-width:720px;max-height:90vh;overflow-y:auto;margin:auto}
-.modal h2{margin:0 0 16px;color:var(--brand)}
-.modal .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
-.modal label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
-.modal input, .modal select, .modal textarea{width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:9px 11px;border-radius:6px;font-size:13px}
-.modal textarea{resize:vertical;min-height:60px}
-.chips{display:flex;gap:6px;flex-wrap:wrap}
-.chip{padding:6px 12px;background:var(--panel2);border:1px solid var(--border);border-radius:18px;cursor:pointer;font-size:12px;color:var(--muted);transition:.15s}
-.chip:hover{border-color:var(--brand)}
-.chip.active{background:var(--brand);color:white;border-color:var(--brand)}
-.timer{font-size:28px;font-weight:700;text-align:center;padding:14px;border-radius:8px;background:var(--panel2);margin-bottom:14px}
-.timer.verde{color:var(--ok)}
-.timer.amarelo{color:var(--warn)}
-.timer.vermelho{color:var(--alert)}
+.modal{
+  background:var(--surface);border:1px solid var(--border);border-radius:18px;
+  padding:0;width:100%;max-width:760px;max-height:92vh;overflow:hidden;margin:auto;
+  box-shadow:var(--shadow);display:flex;flex-direction:column;
+}
+.modal-head{
+  padding:20px 26px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+}
+.modal-head h2{margin:0;color:var(--text);font-size:18px;font-weight:700;letter-spacing:-.3px}
+.modal-head h2 .sub{display:block;font-size:12px;font-weight:400;color:var(--text-3);margin-top:2px}
+.modal-close{background:var(--surface-2);border:none;color:var(--text-2);width:32px;height:32px;border-radius:8px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{background:var(--surface-3);color:var(--text)}
+.modal-body{padding:22px 26px;overflow-y:auto;flex:1}
+.modal-foot{
+  padding:16px 26px;border-top:1px solid var(--border);
+  display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;flex-shrink:0;background:var(--surface-2);
+}
+
+/* SEÇÃO dentro do modal — o que dá a separação visual */
+.section{margin-bottom:22px}
+.section:last-child{margin-bottom:0}
+.section-title{
+  display:flex;align-items:center;gap:8px;
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;
+  color:var(--text-3);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);
+}
+.section-title .num{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:18px;height:18px;border-radius:50%;background:var(--brand-soft);color:var(--brand);
+  font-size:10px;font-weight:700;
+}
+
+.modal .row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.modal .row:last-child{margin-bottom:0}
+.modal .field{display:flex;flex-direction:column}
+.modal label{display:block;font-size:11px;color:var(--text-2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.modal input, .modal select, .modal textarea{
+  width:100%;background:var(--surface-2);border:1.5px solid var(--border);color:var(--text);
+  padding:11px 13px;border-radius:9px;font-size:14px;font-family:inherit;transition:border-color .15s;
+}
+.modal input:focus, .modal select:focus, .modal textarea:focus{outline:none;border-color:var(--brand)}
+.modal textarea{resize:vertical;min-height:70px}
+
+/* CHIPS — maiores e mais clicáveis (uso o dia todo) */
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{
+  padding:9px 16px;background:var(--surface-2);border:1.5px solid var(--border);
+  border-radius:99px;cursor:pointer;font-size:13px;color:var(--text-2);
+  transition:all .15s;font-weight:500;user-select:none;
+}
+.chip:hover{border-color:var(--brand);color:var(--text)}
+.chip.active{background:var(--brand);color:#fff;border-color:var(--brand);font-weight:600;box-shadow:0 2px 8px var(--brand-soft)}
+
+/* TIMER */
+.timer{
+  font-size:40px;font-weight:800;text-align:center;padding:20px;border-radius:14px;
+  background:var(--surface-2);margin-bottom:20px;letter-spacing:1px;font-variant-numeric:tabular-nums;
+  border:1.5px solid var(--border);transition:all .3s;
+}
+.timer.verde{color:var(--ok);border-color:var(--ok);background:var(--ok-soft)}
+.timer.amarelo{color:var(--warn);border-color:var(--warn);background:var(--warn-soft)}
+.timer.vermelho{color:var(--alert);border-color:var(--alert);background:var(--alert-soft);animation:pulse 1.5s ease infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+
 .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap}
 
+/* HISTÓRICO */
+.hist-item{
+  padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;
+}
+.hist-item:last-child{border-bottom:none}
+
 .hidden{display:none !important}
+
+/* RESPONSIVO */
+@media(max-width:600px){
+  .modal .row{grid-template-columns:1fr}
+  .container{padding:14px}
+  .topbar{padding:12px 16px}
+  .modal-head,.modal-body,.modal-foot{padding-left:18px;padding-right:18px}
+  .timer{font-size:34px}
+}
 </style>
 </head>
 <body>
@@ -102,7 +313,7 @@ td .row-btn:hover{background:var(--brand);color:white}
     <input id="loginPass" type="password" autocomplete="current-password">
     <div id="loginErr" class="alert hidden" style="margin-top:14px"></div>
     <button class="btn" id="btnLogin">Entrar</button>
-    <div id="apiStatus" style="margin-top:14px;font-size:11px;color:var(--muted);text-align:center"></div>
+    <div id="apiStatus" style="margin-top:14px;font-size:11px;color:var(--text-3);text-align:center"></div>
   </div>
 </div>
 
@@ -111,7 +322,11 @@ td .row-btn:hover{background:var(--brand);color:white}
   <div class="topbar">
     <div class="brand">🔭 CRM Ocularium <span class="sub">consultoria visual</span></div>
     <div class="userbox">
-      <span><b id="userNome">—</b> · <span id="userPapel">—</span></span>
+      <button class="icon-btn" id="btnTema" title="Alternar tema claro/escuro">🌙</button>
+      <div class="user-chip">
+        <span class="user-av" id="userAv">?</span>
+        <span><b id="userNome">—</b> · <span id="userPapel">—</span></span>
+      </div>
       <button class="btn btn-ghost" id="btnLogout">Sair</button>
     </div>
   </div>
@@ -183,7 +398,7 @@ td .row-btn:hover{background:var(--brand);color:white}
             <option value="90">Últimos 90 dias</option>
           </select>
           <button class="btn btn-ghost" id="btnRefreshDash">↻ Atualizar</button>
-          <span id="dashGeradoEm" style="color:var(--muted);font-size:12px;align-self:center;margin-left:10px"></span>
+          <span id="dashGeradoEm" style="color:var(--text-3);font-size:12px;align-self:center;margin-left:10px"></span>
         </div>
         <div id="dashAlertas"></div>
         <div class="grid" id="dashKpis"><div class="loader"></div></div>
@@ -196,34 +411,59 @@ td .row-btn:hover{background:var(--brand);color:white}
 <!-- ============ MODAL ATENDIMENTO ============ -->
 <div class="modal-backdrop" id="modal">
   <div class="modal">
-    <h2 id="modalTitulo">Atendimento</h2>
-    <div class="timer verde" id="timerBox">00:00</div>
-    <div id="modalErr" class="alert hidden"></div>
+    <div class="modal-head">
+      <h2 id="modalTitulo">Atendimento<span class="sub" id="modalSub"></span></h2>
+      <button class="modal-close" id="btnFecharModalX">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="timer verde" id="timerBox">00:00</div>
+      <div id="modalErr" class="alert hidden"></div>
 
-    <div class="row">
-      <div><label>Pilar predominante</label><div class="chips" id="chipsPilar"></div></div>
-      <div><label>Perfil do cliente</label><div class="chips" id="chipsPerfil"></div></div>
-    </div>
-    <div><label>Produtos / serviços</label><div class="chips" id="chipsProdutos"></div></div>
-    <div class="row" style="margin-top:14px">
-      <div><label>Etapa da jornada</label><select id="selEtapa"></select></div>
-      <div><label>Status comercial</label><select id="selStatus"></select></div>
-    </div>
-    <div class="row">
-      <div><label>Próxima ação</label><input id="inpProxAcao" placeholder="ex: ligar dia 22"></div>
-      <div><label>Data próxima ação</label><input id="inpProxData" type="date"></div>
-    </div>
-    <div class="row">
-      <div><label>Valor orçado</label><input id="inpOrcado" type="number" placeholder="0"></div>
-      <div><label>Valor vendido</label><input id="inpVendido" type="number" placeholder="0"></div>
-    </div>
-    <div><label>Descritivo / observações</label><textarea id="inpDescritivo" placeholder="Anote o que foi conversado..."></textarea></div>
+      <!-- Seção 1: Classificação -->
+      <div class="section">
+        <div class="section-title"><span class="num">1</span> Classificação do atendimento</div>
+        <div class="row">
+          <div class="field"><label>Pilar predominante</label><div class="chips" id="chipsPilar"></div></div>
+          <div class="field"><label>Perfil do cliente</label><div class="chips" id="chipsPerfil"></div></div>
+        </div>
+        <div class="field" style="margin-top:14px"><label>Produtos / serviços de interesse</label><div class="chips" id="chipsProdutos"></div></div>
+      </div>
 
-    <div style="margin-top:20px"><h3 style="font-size:14px;margin:0 0 8px;color:var(--muted)">Histórico</h3>
-      <div id="histList" style="font-size:12px;color:var(--muted)"></div>
-    </div>
+      <!-- Seção 2: Andamento comercial -->
+      <div class="section">
+        <div class="section-title"><span class="num">2</span> Andamento comercial</div>
+        <div class="row">
+          <div class="field"><label>Etapa da jornada</label><select id="selEtapa"></select></div>
+          <div class="field"><label>Status comercial</label><select id="selStatus"></select></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Próxima ação</label><input id="inpProxAcao" placeholder="ex: ligar dia 22"></div>
+          <div class="field"><label>Data da próxima ação</label><input id="inpProxData" type="date"></div>
+        </div>
+      </div>
 
-    <div class="modal-actions">
+      <!-- Seção 3: Valores -->
+      <div class="section">
+        <div class="section-title"><span class="num">3</span> Valores</div>
+        <div class="row">
+          <div class="field"><label>Valor orçado (R$)</label><input id="inpOrcado" type="number" placeholder="0"></div>
+          <div class="field"><label>Valor vendido (R$)</label><input id="inpVendido" type="number" placeholder="0"></div>
+        </div>
+      </div>
+
+      <!-- Seção 4: Observações -->
+      <div class="section">
+        <div class="section-title"><span class="num">4</span> Observações</div>
+        <div class="field"><textarea id="inpDescritivo" placeholder="Anote o que foi conversado, objeções, próximos passos..."></textarea></div>
+      </div>
+
+      <!-- Seção 5: Histórico -->
+      <div class="section">
+        <div class="section-title">📋 Histórico deste cliente</div>
+        <div id="histList" style="font-size:13px;color:var(--text-2)"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
       <button class="btn btn-ghost" id="btnFecharModal">Fechar</button>
       <button class="btn btn-ok" id="btnIniciar">▶ Iniciar</button>
       <button class="btn btn-warn" id="btnFinalizar">✓ Finalizar atendimento</button>
@@ -234,31 +474,37 @@ td .row-btn:hover{background:var(--brand);color:white}
 <!-- ============ MODAL NOVA OPORTUNIDADE ============ -->
 <div class="modal-backdrop" id="modalNova">
   <div class="modal" style="max-width:560px">
-    <h2>Nova oportunidade</h2>
-    <div id="novaErr" class="alert hidden"></div>
-    <div class="row">
-      <div><label>Nome do cliente *</label><input id="novaNome"></div>
-      <div><label>Telefone</label><input id="novaTelefone"></div>
+    <div class="modal-head">
+      <h2>Nova oportunidade</h2>
+      <button class="modal-close" id="btnFecharNovaX">×</button>
     </div>
-    <div class="row" id="boxVendedor">
-      <div style="grid-column:1/-1"><label>Vendedor responsável</label>
-        <select id="novaVendedor"><option value="">— selecionar —</option></select>
+    <div class="modal-body">
+      <div id="novaErr" class="alert hidden"></div>
+      <div class="row">
+        <div class="field"><label>Nome do cliente *</label><input id="novaNome"></div>
+        <div class="field"><label>Telefone</label><input id="novaTelefone"></div>
+      </div>
+      <div class="row" id="boxVendedor">
+        <div class="field" style="grid-column:1/-1"><label>Vendedor responsável</label>
+          <select id="novaVendedor"><option value="">— selecionar —</option></select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field"><label>Origem</label>
+          <select id="novaOrigem">
+            <option>Loja física</option><option>Indicação</option><option>Instagram</option>
+            <option>WhatsApp</option><option>Site</option><option>Outro</option>
+          </select>
+        </div>
+        <div class="field"><label>Produto de interesse</label><input id="novaProduto" placeholder="ex: Armação + lente"></div>
+      </div>
+      <div class="field"><label>Necessidade principal</label><input id="novaNecessidade"></div>
+      <div class="field" style="margin-top:16px;flex-direction:row;align-items:center;gap:8px">
+        <input type="checkbox" id="novaIniciar" checked style="width:auto">
+        <label style="margin:0;text-transform:none;letter-spacing:0;font-size:14px;color:var(--text)">Iniciar atendimento agora</label>
       </div>
     </div>
-    <div class="row">
-      <div><label>Origem</label>
-        <select id="novaOrigem">
-          <option>Loja física</option><option>Indicação</option><option>Instagram</option>
-          <option>WhatsApp</option><option>Site</option><option>Outro</option>
-        </select>
-      </div>
-      <div><label>Produto interesse</label><input id="novaProduto" placeholder="ex: Armação + lente"></div>
-    </div>
-    <div><label>Necessidade principal</label><input id="novaNecessidade"></div>
-    <div style="margin-top:14px">
-      <label><input type="checkbox" id="novaIniciar" checked> Iniciar atendimento agora</label>
-    </div>
-    <div class="modal-actions">
+    <div class="modal-foot">
       <button class="btn btn-ghost" id="btnFecharNova">Cancelar</button>
       <button class="btn" id="btnSalvarNova">✓ Criar oportunidade</button>
     </div>
@@ -354,6 +600,23 @@ function testarConexao(){
 testarConexao();
 
 // ===================================================================
+// TEMA CLARO / ESCURO
+// (sem localStorage — Artifacts não suportam; persiste só na sessão)
+// ===================================================================
+let temaAtual = 'dark';
+function aplicarTema(t){
+  temaAtual = t;
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = $('btnTema');
+  if (btn) btn.textContent = (t === 'dark') ? '☀️' : '🌙';
+}
+function alternarTema(){
+  aplicarTema(temaAtual === 'dark' ? 'light' : 'dark');
+}
+$('btnTema').addEventListener('click', alternarTema);
+aplicarTema('dark'); // começa no escuro
+
+// ===================================================================
 // LOGIN
 // ===================================================================
 $('btnLogin').addEventListener('click', fazerLogin);
@@ -400,6 +663,7 @@ function iniciarApp(){
   show('appScreen', true);
   setText('userNome', estado.usuario.nome);
   setText('userPapel', estado.usuario.papel + (estado.usuario.loja ? ' · ' + estado.usuario.loja : ''));
+  setText('userAv', (estado.usuario.nome || '?').charAt(0).toUpperCase());
 
   // mostra abas extras para gerentes/admins
   if (estado.usuario.papel === 'gerente' || estado.usuario.papel === 'admin') {
@@ -491,7 +755,7 @@ function renderTabela(){
   }
   setHTML('tblBody', lista.map((o,i) =>
     '<tr>'+
-      '<td><b>'+escapeHtml(o.Nome_Cliente||'—')+'</b><br><small style="color:var(--muted)">'+escapeHtml(o.Telefone||'')+'</small></td>'+
+      '<td><b>'+escapeHtml(o.Nome_Cliente||'—')+'</b><br><small style="color:var(--text-3)">'+escapeHtml(o.Telefone||'')+'</small></td>'+
       '<td>'+escapeHtml(o.Vendedor_Responsavel||'—')+'</td>'+
       '<td>'+escapeHtml(o.Loja||'—')+'</td>'+
       '<td><span class="badge">'+escapeHtml(o.Pilar_Principal||'—')+'</span></td>'+
@@ -515,6 +779,7 @@ function renderTabela(){
 // MODAL ATENDIMENTO
 // ===================================================================
 $('btnFecharModal').addEventListener('click', fecharModal);
+$('btnFecharModalX').addEventListener('click', fecharModal);
 $('btnIniciar').addEventListener('click', iniciarAtendimento);
 $('btnFinalizar').addEventListener('click', finalizarAtendimento);
 
@@ -525,7 +790,12 @@ function abrirModal(op){
     inicioMs:null, intervalo:null
   };
   setErr('modalErr','');
-  setText('modalTitulo','Atendimento — '+ (op.Nome_Cliente||'—'));
+  // Título = nome do cliente; subtítulo = loja/vendedor (sem apagar o span)
+  const tituloEl = $('modalTitulo');
+  if (tituloEl) {
+    tituloEl.childNodes[0].nodeValue = (op.Nome_Cliente || '—') + ' ';
+  }
+  setText('modalSub', [op.Loja, op.Vendedor_Responsavel].filter(Boolean).join(' · '));
 
   // chips
   renderChips('chipsPilar', estado.listas.pilares, () => estado.modal.pilar, v => estado.modal.pilar = v);
@@ -551,7 +821,7 @@ function abrirModal(op){
   setHTML('histList','<div class="loader" style="margin:10px auto;width:18px;height:18px"></div>');
   apiCall('historicoAtendimentos', { usuario: estado.usuario, idOportunidade: op.ID_Oportunidade })
     .then(r => renderHistorico((r && r.historico) || []))
-    .catch(()=> setHTML('histList','<div style="color:var(--muted)">Sem histórico.</div>'));
+    .catch(()=> setHTML('histList','<div style="color:var(--text-3)">Sem histórico.</div>'));
 
   showModal('modal', true);
 }
@@ -591,11 +861,11 @@ function renderChipsMulti(id, lista, getLista){
 }
 
 function renderHistorico(h){
-  if (!h.length) { setHTML('histList','<div style="color:var(--muted)">Sem atendimentos anteriores.</div>'); return; }
+  if (!h.length) { setHTML('histList','<div style="color:var(--text-3)">Sem atendimentos anteriores.</div>'); return; }
   setHTML('histList', h.map(a =>
-    '<div style="padding:8px;border-bottom:1px solid var(--border)">'+
+    '<div class="hist-item">'+
       '<b>'+escapeHtml(a.Vendedor||'—')+'</b> · '+escapeHtml(a.Inicio||'—')+' · '+a.Duracao_min+' min'+
-      (a.Descritivo ? '<br><span style="color:var(--text)">'+escapeHtml(a.Descritivo)+'</span>' : '')+
+      (a.Descritivo ? '<br><span style="color:var(--text-2)">'+escapeHtml(a.Descritivo)+'</span>' : '')+
     '</div>'
   ).join(''));
 }
@@ -683,6 +953,7 @@ function pararTimer(){
 // ===================================================================
 $('btnNova').addEventListener('click', abrirModalNova);
 $('btnFecharNova').addEventListener('click', () => showModal('modalNova', false));
+$('btnFecharNovaX').addEventListener('click', () => showModal('modalNova', false));
 $('btnSalvarNova').addEventListener('click', salvarNova);
 
 function abrirModalNova(){
@@ -773,7 +1044,7 @@ function carregarTempos(){
       setHTML('resumoTempos', (r.resumoVendedores||[]).map(v =>
         '<div class="stat"><div class="lbl">'+escapeHtml(v.vendedor)+'</div>'+
           '<div class="val">'+v.qtd+'</div>'+
-          '<div style="font-size:11px;color:var(--muted);margin-top:4px;">média '+v.mediaMin+'min · '+
+          '<div style="font-size:11px;color:var(--text-3);margin-top:4px;">média '+v.mediaMin+'min · '+
             '<span style="color:var(--ok)">●'+v.verde+'</span> '+
             '<span style="color:var(--warn)">●'+v.amarelo+'</span> '+
             '<span style="color:var(--alert)">●'+v.vermelho+'</span></div>'+
@@ -860,7 +1131,7 @@ function renderDashboard(r){
   html += secaoAgrupada('Por etapa', r.porEtapa);
   html += secaoAgrupada('Por origem', r.porOrigem);
 
-  html += '<h3 style="margin:24px 0 10px;font-size:14px;color:var(--muted)">Por vendedor</h3>';
+  html += '<h3 style="margin:24px 0 10px;font-size:14px;color:var(--text-3)">Por vendedor</h3>';
   html += '<table><thead><tr><th>Vendedor</th><th>Qtd</th><th>Convertidas</th><th>Faturamento</th></tr></thead><tbody>';
   (r.tabVendedores||[]).forEach(v => {
     html += '<tr><td>'+escapeHtml(v.vendedor)+'</td><td>'+v.qtd+'</td><td>'+v.convertido+'</td><td>'+fmtMoney(v.faturamento)+'</td></tr>';
@@ -875,7 +1146,7 @@ function kpiCard(lbl, val){
 
 function secaoAgrupada(titulo, lista){
   if (!lista || !lista.length) return '';
-  let h = '<h3 style="margin:24px 0 10px;font-size:14px;color:var(--muted)">'+escapeHtml(titulo)+'</h3>';
+  let h = '<h3 style="margin:24px 0 10px;font-size:14px;color:var(--text-3)">'+escapeHtml(titulo)+'</h3>';
   h += '<table><thead><tr><th>'+escapeHtml(titulo.replace(/^Por /,''))+'</th><th>Qtd</th><th>Faturamento</th></tr></thead><tbody>';
   lista.forEach(x => {
     h += '<tr><td>'+escapeHtml(x.label)+'</td><td>'+x.qtd+'</td><td>'+fmtMoney(x.faturamento)+'</td></tr>';
