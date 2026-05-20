@@ -272,10 +272,10 @@ td .row-btn:hover{background:var(--brand);color:white}
 const API_URL = 'https://script.google.com/macros/s/AKfycbwgFdX8yep42V_8au6EiSAhCBHPgcApGQ18QOPgGSHF5fIdVkk8bi5114bHkM2qK38JHQ/exec';
 
 // ===================================================================
-// COMUNICAÇÃO — fetch POST com text/plain (mesmo padrão do app SALOME)
-// O text/plain evita o preflight CORS que o Apps Script bloqueia.
-// NÃO usa AbortController (quebra em iframe/sandbox com DataCloneError).
-// Timeout via Promise.race; 1 retry automático em falha de rede.
+// COMUNICAÇÃO — GET com dados na URL (imune a CORS no Apps Script)
+// POST gera CORS error por causa do redirect 302 do Apps Script.
+// GET simples não dispara preflight e segue o redirect sem bloqueio.
+// Timeout via Promise.race; 1 retry automático.
 // ===================================================================
 function _timeout(ms) {
   return new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms));
@@ -284,18 +284,19 @@ function _timeout(ms) {
 function apiCall(fn, arg, _tentativa) {
   _tentativa = _tentativa || 1;
 
-  const req = fetch(API_URL, {
-    method: 'POST',
-    body: JSON.stringify({ fn: fn, arg: (arg !== undefined ? arg : null) })
-  })
-  .then(r => r.json())
-  .then(r => {
-    if (r && r.__erro) throw new Error(r.__erro);
-    return r;
-  });
+  const dados = encodeURIComponent(JSON.stringify(arg !== undefined ? arg : null));
+  const sep = API_URL.indexOf('?') >= 0 ? '&' : '?';
+  const fullUrl = API_URL + sep + 'fn=' + encodeURIComponent(fn) + '&arg=' + dados;
+
+  const req = fetch(fullUrl, { method: 'GET' })
+    .then(r => r.json())
+    .then(r => {
+      if (r && r.__erro) throw new Error(r.__erro);
+      return r;
+    });
 
   return Promise.race([req, _timeout(15000)]).catch(e => {
-    const ehErroRede = e.message === 'timeout' || /fetch|network|Failed/i.test(e.message || '');
+    const ehErroRede = e.message === 'timeout' || /fetch|network|Failed|CORS/i.test(e.message || '');
     if (_tentativa < 2 && ehErroRede) {
       return new Promise(res => setTimeout(res, 1500)).then(() => apiCall(fn, arg, 2));
     }
