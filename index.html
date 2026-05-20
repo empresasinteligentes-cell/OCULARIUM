@@ -329,6 +329,39 @@ td .row-btn:hover{background:var(--brand);color:var(--on-brand)}
 .hidden{display:none !important}
 
 /* ============================================================
+   TABELA: ordenação clicável + filtro por coluna (menu ☰)
+   ============================================================ */
+#tblHeadRow th{white-space:nowrap}
+.th-sort{cursor:pointer;user-select:none;transition:color .12s}
+.th-sort:hover{color:var(--brand)}
+.th-sort .sort-ar{font-size:10px;opacity:.5;margin-left:3px}
+.th-sort.sort-asc .sort-ar::after{content:'▲';opacity:1}
+.th-sort.sort-desc .sort-ar::after{content:'▼';opacity:1}
+.th-sort.sort-asc, .th-sort.sort-desc{color:var(--brand)}
+.th-filter{
+  border:0;background:transparent;color:var(--text-3);cursor:pointer;
+  font-size:12px;padding:2px 5px;margin-left:5px;border-radius:5px;
+  vertical-align:middle;transition:all .12s;line-height:1;
+}
+.th-filter:hover{background:var(--surface-3);color:var(--text)}
+.th-filter.ativo{background:var(--brand);color:var(--on-brand)}
+#viewLista{position:relative}
+.filtro-menu{
+  position:absolute;z-index:60;background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;box-shadow:var(--shadow);padding:12px;min-width:200px;
+}
+.filtro-menu label{display:block;font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:7px}
+.filtro-menu input, .filtro-menu select{
+  width:100%;font-size:13px;padding:8px 9px;border:1px solid var(--border);
+  border-radius:7px;background:var(--surface);color:var(--text);font-family:inherit;
+}
+.filtro-menu input:focus, .filtro-menu select:focus{outline:none;border-color:var(--brand)}
+.filtro-menu .fm-actions{display:flex;gap:8px;margin-top:10px}
+.filtro-menu .fm-actions button{flex:1;font-size:12px;padding:7px;border-radius:7px;cursor:pointer;font-weight:700;font-family:inherit;border:1px solid var(--border)}
+.filtro-menu .fm-aplicar{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
+.filtro-menu .fm-limpar{background:var(--surface);color:var(--text-2)}
+
+/* ============================================================
    PAINEL DE INTELIGÊNCIA — Ações do dia + Funil + Temperatura
    ============================================================ */
 .intel-wrap{display:grid;grid-template-columns:1fr 360px;gap:18px;margin-top:18px}
@@ -619,14 +652,24 @@ tr.temp-morno{background:rgba(245,158,11,.04)}
 
         <!-- VIEW: LISTA -->
         <div id="viewLista">
-          <table>
-            <thead><tr>
-              <th>Temp.</th><th>Cliente</th><th>Vendedor</th>
-              <th>Pilar</th><th>Status</th><th>Etapa</th>
-              <th>Próxima ação</th><th>Valor</th><th></th>
-            </tr></thead>
+          <table class="tbl-sortable">
+            <thead>
+              <tr id="tblHeadRow">
+                <th data-campo="__temp"><span class="th-sort">Temp. <span class="sort-ar"></span></span><button class="th-filter" data-fcol="__temp" data-ftype="select" title="Filtrar">☰</button></th>
+                <th data-campo="Nome_Cliente"><span class="th-sort">Cliente <span class="sort-ar"></span></span><button class="th-filter" data-fcol="Nome_Cliente" data-ftype="text" title="Filtrar">☰</button></th>
+                <th data-campo="Vendedor_Responsavel"><span class="th-sort">Vendedor <span class="sort-ar"></span></span><button class="th-filter" data-fcol="Vendedor_Responsavel" data-ftype="select" title="Filtrar">☰</button></th>
+                <th data-campo="Pilar_Principal"><span class="th-sort">Pilar <span class="sort-ar"></span></span><button class="th-filter" data-fcol="Pilar_Principal" data-ftype="select" title="Filtrar">☰</button></th>
+                <th data-campo="Status_Comercial"><span class="th-sort">Status <span class="sort-ar"></span></span><button class="th-filter" data-fcol="Status_Comercial" data-ftype="select" title="Filtrar">☰</button></th>
+                <th data-campo="Etapa_Jornada"><span class="th-sort">Etapa <span class="sort-ar"></span></span><button class="th-filter" data-fcol="Etapa_Jornada" data-ftype="select" title="Filtrar">☰</button></th>
+                <th data-campo="Proxima_Acao"><span class="th-sort">Próxima ação <span class="sort-ar"></span></span><button class="th-filter" data-fcol="Proxima_Acao" data-ftype="text" title="Filtrar">☰</button></th>
+                <th data-campo="__valor"><span class="th-sort">Valor <span class="sort-ar"></span></span></th>
+                <th></th>
+              </tr>
+            </thead>
             <tbody id="tblBody"><tr><td colspan="9"><div class="loader"></div></td></tr></tbody>
           </table>
+          <!-- menu de filtro flutuante (reaproveitado por todas as colunas) -->
+          <div id="filtroMenu" class="filtro-menu hidden"></div>
         </div>
 
         <!-- VIEW: KANBAN -->
@@ -854,6 +897,8 @@ const estado = {
   acoes: [],                  // ações calculadas
   view: 'lista',              // 'lista' ou 'kanban'
   kanbanLista: [],            // lista renderizada no kanban (p/ abrir modal por índice)
+  ordenacao: { campo:null, dir:null },  // ordenação da tabela (campo + 'asc'/'desc')
+  filtroCol: {},              // filtros por coluna { campo: valor }
   modal: { aberto:false, op:null, pilar:null, perfil:null, produtos:[], inicioMs:null, intervalo:null }
 };
 
@@ -1019,6 +1064,99 @@ $('filtroStatus').addEventListener('change', e => { estado.filtro.status = e.tar
 $('filtroPilar').addEventListener('change', e => { estado.filtro.pilar = e.target.value; renderView(); });
 $('btnRefresh').addEventListener('click', carregarOportunidades);
 
+// Ordenação ao clicar no título da coluna (asc → desc → limpa)
+document.addEventListener('click', (e) => {
+  const sort = e.target.closest('#tblHeadRow .th-sort');
+  if (!sort) return;
+  const th = sort.closest('th');
+  const campo = th.dataset.campo;
+  const ord = estado.ordenacao;
+  if (ord.campo !== campo) { ord.campo = campo; ord.dir = 'asc'; }
+  else if (ord.dir === 'asc') { ord.dir = 'desc'; }
+  else if (ord.dir === 'desc') { ord.campo = null; ord.dir = null; }
+  else { ord.dir = 'asc'; }
+  renderTabela();
+});
+
+// Abrir menu de filtro ao clicar no botão ☰ da coluna
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.th-filter');
+  if (!btn) { return; }
+  e.stopPropagation();
+  abrirFiltroMenu(btn);
+});
+
+// Fechar o menu ao clicar fora
+document.addEventListener('click', (e) => {
+  const menu = $('filtroMenu');
+  if (!menu || menu.classList.contains('hidden')) return;
+  if (e.target.closest('#filtroMenu') || e.target.closest('.th-filter')) return;
+  menu.classList.add('hidden');
+});
+
+function abrirFiltroMenu(btn){
+  const menu = $('filtroMenu');
+  const fcol = btn.dataset.fcol;
+  const ftype = btn.dataset.ftype;
+  const atual = estado.filtroCol[fcol] || '';
+
+  // monta o conteúdo do menu conforme o tipo
+  let campoHtml = '';
+  if (ftype === 'text') {
+    campoHtml = '<input id="fmInput" placeholder="digite para filtrar..." value="'+escapeHtml(atual)+'">';
+  } else {
+    let opcoes = [];
+    if (fcol === '__temp') opcoes = [['quente','Quente'],['morno','Morno'],['frio','Frio']];
+    else if (fcol === 'Vendedor_Responsavel') opcoes = [...new Set((estado.oportunidades||[]).map(o=>o.Vendedor_Responsavel).filter(Boolean))].sort().map(v=>[v,v]);
+    else if (fcol === 'Pilar_Principal') opcoes = (estado.listas.pilares||[]).map(v=>[v,v]);
+    else if (fcol === 'Status_Comercial') opcoes = (estado.listas.status||[]).map(v=>[v,v]);
+    else if (fcol === 'Etapa_Jornada') opcoes = (estado.listas.etapas||[]).map(v=>[v,v]);
+    campoHtml = '<select id="fmInput"><option value="">Todos</option>' +
+      opcoes.map(([v,l]) => '<option value="'+escapeHtml(v)+'"'+(String(v).toLowerCase()===String(atual).toLowerCase()?' selected':'')+'>'+escapeHtml(l)+'</option>').join('') +
+      '</select>';
+  }
+  menu.innerHTML =
+    '<label>Filtrar por '+btn.closest('th').querySelector('.th-sort').textContent.trim().replace(/[▲▼]/g,'').trim()+'</label>'+
+    campoHtml +
+    '<div class="fm-actions">'+
+      '<button class="fm-limpar" id="fmLimpar">Limpar</button>'+
+      '<button class="fm-aplicar" id="fmAplicar">Aplicar</button>'+
+    '</div>';
+
+  // posiciona o menu abaixo do botão
+  const r = btn.getBoundingClientRect();
+  const cont = $('viewLista').getBoundingClientRect();
+  menu.style.left = Math.min(r.left - cont.left, cont.width - 220) + 'px';
+  menu.style.top  = (r.bottom - cont.top + 6) + 'px';
+  menu.classList.remove('hidden');
+
+  const inp = $('fmInput');
+  inp.focus();
+  const aplicar = () => {
+    estado.filtroCol[fcol] = inp.value;
+    menu.classList.add('hidden');
+    atualizarBotoesFiltro();
+    renderTabela();
+  };
+  $('fmAplicar').onclick = aplicar;
+  if (ftype === 'text') inp.onkeydown = (ev) => { if (ev.key === 'Enter') aplicar(); };
+  else inp.onchange = aplicar;
+  $('fmLimpar').onclick = () => {
+    estado.filtroCol[fcol] = '';
+    menu.classList.add('hidden');
+    atualizarBotoesFiltro();
+    renderTabela();
+  };
+}
+
+// marca em destaque os botões ☰ que têm filtro ativo
+function atualizarBotoesFiltro(){
+  document.querySelectorAll('.th-filter').forEach(b => {
+    const v = (estado.filtroCol[b.dataset.fcol]||'').trim();
+    b.classList.toggle('ativo', !!v);
+  });
+}
+
 function carregarOportunidades(){
   setHTML('tblBody','<tr><td colspan="9"><div class="loader"></div></td></tr>');
   apiCall('listarOportunidades', { usuario: estado.usuario })
@@ -1042,6 +1180,7 @@ function popularFiltros(){
     (estado.listas.status||[]).map(s => '<option>'+escapeHtml(s)+'</option>').join('');
   selP.innerHTML = '<option value="">Todos os pilares</option>' +
     (estado.listas.pilares||[]).map(s => '<option>'+escapeHtml(s)+'</option>').join('');
+  // (os filtros por coluna agora são montados sob demanda no menu ☰)
 }
 
 function renderStats(){
@@ -1225,6 +1364,39 @@ function aplicarFiltros(base){
   return lista;
 }
 
+// valor "ordenável" de um campo (temperatura e valor têm lógica própria)
+function valorCampo(o, campo){
+  if (campo === '__temp'){ const t = temperatura(o); return t==='quente'?3:t==='morno'?2:t==='frio'?1:0; }
+  if (campo === '__valor') return Number(o.Valor_Vendido)||Number(o.Valor_Orcado)||0;
+  return String(o[campo]||'').toLowerCase();
+}
+
+// aplica os filtros por coluna
+function aplicarFiltroColuna(lista){
+  const fc = estado.filtroCol || {};
+  Object.keys(fc).forEach(campo => {
+    const v = String(fc[campo]||'').trim().toLowerCase();
+    if (!v) return;
+    lista = lista.filter(o => {
+      if (campo === '__temp'){ return (temperatura(o)||'') === v; }
+      return String(o[campo]||'').toLowerCase().indexOf(v) >= 0;
+    });
+  });
+  return lista;
+}
+
+// aplica ordenação
+function aplicarOrdenacao(lista){
+  const { campo, dir } = estado.ordenacao;
+  if (!campo || !dir) return lista;
+  const mult = dir === 'asc' ? 1 : -1;
+  return lista.slice().sort((a,b) => {
+    const va = valorCampo(a, campo), vb = valorCampo(b, campo);
+    if (typeof va === 'number' && typeof vb === 'number') return (va - vb) * mult;
+    return String(va).localeCompare(String(vb), 'pt') * mult;
+  });
+}
+
 function renderTabela(){
   let lista = aplicarFiltros(estado.oportunidades);
 
@@ -1233,6 +1405,20 @@ function renderTabela(){
     const acao = estado.acoes.find(a => a.id === estado.filtroAcao);
     if (acao) lista = lista.filter(acao.filtro);
   }
+
+  // filtros por coluna + ordenação
+  lista = aplicarFiltroColuna(lista);
+  lista = aplicarOrdenacao(lista);
+  estado.tabelaLista = lista; // referência para abrir modal por índice
+
+  // atualiza as setinhas de ordenação no cabeçalho
+  document.querySelectorAll('#tblHeadRow .th-sort').forEach(sort => {
+    sort.classList.remove('sort-asc','sort-desc');
+    const campo = sort.closest('th').dataset.campo;
+    if (campo === estado.ordenacao.campo && estado.ordenacao.dir)
+      sort.classList.add('sort-'+estado.ordenacao.dir);
+  });
+  atualizarBotoesFiltro();
 
   if (!lista.length) {
     setHTML('tblBody','<tr><td colspan="9" class="empty">Nenhuma oportunidade encontrada.</td></tr>');
@@ -1260,7 +1446,7 @@ function renderTabela(){
   document.querySelectorAll('.row-btn').forEach(b => {
     b.addEventListener('click', () => {
       const idx = Number(b.dataset.i);
-      abrirModal(lista[idx]);
+      abrirModal(estado.tabelaLista[idx]);
     });
   });
 }
